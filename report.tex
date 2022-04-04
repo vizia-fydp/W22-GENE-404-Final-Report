@@ -100,6 +100,10 @@ Extract, decode, and communicate information from an image to a visually impaire
         MFi Chip & Specialty chip needed for certain wireless capabilities when communicating with Apple devices \\ \hline
         System on a chip (SoC) & Integrated circuit that integrates the components of a computer \\ \hline
         Raspberry PI Zero W & Very small single-board computer with wireless capabilities \\ \hline
+        CAD & Computer-aided design \\
+        \hline
+        API & Application programming interface \\
+        \hline
     \end{tabular}
 \end{table}
 
@@ -235,9 +239,58 @@ There is a possible issue of patent infringement concerning the doctrine of equi
 
 \section{Acknowledgements}
 
-
+\newpage
 \section{Appendix A - Design Solution Description}
+\subsection{System Level Representation}
 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.265]{img/system_diagram.png}
+\caption{System design diagram}
+\label{fig:system_diagram}
+\end{figure}
+
+Our design consists of 3 components: glasses, server, and an iOS application. Figure \ref{fig:system_diagram} shows how these components interact with each other. The glasses sends an image to the server, the server processes the image, and then the results are sent to the iOS app to be presented to the user through audio. The app is also capable of taking images and sending it to the server, and this allows the app to be used without the glasses.
+
+\newpage
+\subsection{Glasses}
+\begin{center}
+    \includegraphics[width={0.3\linewidth}]{img/glasses/left.jpg}
+    \includegraphics[width={0.3\linewidth}]{img/glasses/middle.jpg}
+    \includegraphics[width={0.3\linewidth}]{img/glasses/right.jpg}
+\end{center}
+
+A 3D printed clip-on design was used to allow flexibility since it can be attached to any pair of glasses. There are two pieces that attach to the glasses, the module on the right side is the compute unit, storing a Raspberry Pi Zero W, Adafruit PowerBoost 500, 8 MP Camera, 2 buttons, and an piezoelectric buzzer. The Raspberry Pi is responsible for all of the compute and managing the GPIO, the PowerBoost board is for power management, one button is to take a picture, another is to switch between different processing modes, and the piezoelectric buzzer is to communicate any errors or low battery warnings. The module on the left side is the power supply, which is a battery holder for 3 AAA batteries. There is a wire that goes between the 2 modules to connect the power supply, and this wire also doubles as a holder for the glasses in case the user wants to take it off their face and keep it around their neck. The great thing about this design is that the total cost of parts is less than 200 Canadian dollars, and the CAD files are provided by us so anybody can print the clip-on design using a 3D printer.
+
+\subsection{Server}
+The server is where all of the computer vision processing happens, and the results of the computation is sent back as a response and it can also be emitted on a socket, which the iOS app listens on so that it can received the results in the event that the image was sent from the glasses. There are 3 features supported by the server: optical character recognition (OCR), colour detection, and money classification. The server is implemented in Flask, a micro web framework written in Python, and it was chosen since our computer vision code is implemented in Python, so having the server code in the same language makes it easier. There are 4 APIs exposed by the server:
+
+\begin{itemize}
+    \item \texttt{/ocr}: Performs optical character recognition.
+    \item \texttt{/detect\_color}: Finds the top k colours in an image, with k being configurable.
+    \item \texttt{/classify\_money}: Looks for all denominations of US bills. Also specifies when no bill is found in the image.
+    \item \texttt{/socket\_emit}: Emits any string on a socket path. Used to communicate state changes from the glasses to the iOS app.
+\end{itemize}
+
+\subsubsection{Optical Character Recognition (OCR)}
+Optical Character Recognition is generally a difficult task for computer vision systems. There are currently many existing solutions available to perform OCR. During the Spring 2021 term, different OCR libraries were tested and the best library was selected to be used in the project. Please refer to our Spring 2021 report for the details of the testing. As a summary, we tested EasyOCR, PaddleOCR, Tesseract-OCR, and the Google Cloud Vision API, and found that the Google Cloud Vision API offered the best performance and the most features. This term, we further tested the google cloud vision API and became more confident in it's performance and capabilities. One new feature we incorporated was supported language specific text synthesis. We noticed the results from the google API returned a language code for the text it finds, and we are able to forward this language code to the iOS app's speech synthesizer, and this way, it will speak the text in the locale of the language it is detected in. Google cloud vision API currently supports 60 language \cite{google-languages}, and while we didn't verify every single of them, we tried a subset of them with our iOS speech synthesis and it appeared to work well. Additionally, the Google vision API supports all three of our target modalities: text-in-the-wild, documents, and handwritten. See figure \ref{fig:google_vision_examples} below for example output from the Google APIs.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{img/cv/ocr_text_in_the_wild.png}
+\includegraphics[scale=0.5]{img/cv/ocr_handwriting.png}
+\caption{Examples of results from Google Cloud Vision API}
+\label{fig:google_vision_examples}
+\end{figure}
+
+
+\subsubsection{Colour Detection}
+
+\subsubsection{Money Classification}
+
+\subsection{iOS App}
+
+\newpage
 \section{Appendix B - Verification and Validation Data}
 
 \section{Appendix C - Design Project Management Data}
@@ -396,6 +449,9 @@ https://www.raspberrypi.org/products/raspberry-pi-zero-w/
 
 \bibitem{resnet}
 Singhal, G. (2020, May 5). Gaurav Singhal. Pluralsight. Retrieved December 4, 2021, from https://www.pluralsight.com/guides/introduction-to-resnet.
+
+\bibitem{google-languages}
+“OCR language support | cloud vision API |; google cloud,” Google. [Online]. Available: https://cloud.google.com/vision/docs/languages. [Accessed: 03-Apr-2022]. 
 
 \end{thebibliography}
 
