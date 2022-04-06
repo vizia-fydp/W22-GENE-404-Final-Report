@@ -23,6 +23,11 @@
 \usepackage{parskip}
 \setlength{\parindent}{0pt}
 
+% \hypersetup{
+%     colorlinks=true,
+%     linkcolor=blue
+% }
+
 \begin{document}
 
 % Ask zain and connor to review safety/regulatory section and update
@@ -283,8 +288,65 @@ Optical Character Recognition is generally a difficult task for computer vision 
 \label{fig:google_vision_examples}
 \end{figure}
 
-
 \subsubsection{Colour Detection}
+Colour detection refers to identifying the most prevalent colours in an image. We got the idea to implement this since the feature exists in Seeing AI, and the individual we spoke with from Lighthouse SF mentioned she used this feature often to identify the colours of clothing, in order to decide what outfit to wear. We determined this would a be a relatively straightforward algorithm to implement so we did it ourselves. Since the end goal is to report colours by name, and not the pixel values, we needed a database of colours with their associated RGB values to use as a reference. We used three such databases, which we referred to as small, medium, large, and they can be found
+\href{https://github.com/vizia-fydp/server/tree/main/color_detection}{\color{blue}{here}}
+ in our server repository. The small and medium databases are from \cite{color-small-medium}, and the large one is from \cite{color-large}. The small, medium, and large databases have 17, 140, and 866 colours respectively. Note that we included HSV pixels for each colour as well as that is something we wanted to experiment with.
+
+To implement this feature, we came up with two algorithms, described below:
+
+\newpage
+\begin{enumerate}
+    \item For each pixel, find the euclidean distance to each colour in the database. The colour with the smallest euclidean distance is chosen as the best match for this pixel. Keep a count of which colours appear, and sort it by count, from highest to lowest count. Pick off the top K colours from this count.
+    \item If K colours are desired, performs K-Means Clustering \cite{k-means-wikipedia, k-means-opencv} with 2*K clusters, pick out the top K clusters and calculate euclidean distance between the cluster mean and all colours in the database. Pick the colour from the database with the smallest euclidean distance as the match for that cluster.
+\end{enumerate}
+
+
+
+The equation for the euclidean distance can be seen in Equation \ref{eq:euclidean_dist}, where $d_i$ is the distance to the $i_{th}$ colour in the database. 
+
+\begin{equation}
+\label{eq:euclidean_dist}
+d_i=\sqrt{(R - R_i)^2 + (G - G_i)^2 + (B - B_i)^2}
+\end{equation}
+
+Both algorithms were implemented and tested, and found that they produced similar results. However, algorithm 2 ran a little bit faster, even with optimizations made to algorithm 1. We kept code for both algorithms in the server code, but algorithm 2 is used due to its lower computational cost.
+
+We choose to set K=3 to report the top 3 colours in the image as that seemed most appropriate, however, this parameter is easily configurable since the \texttt{/detect\_color} API takes K as an argument.
+
+Figures \ref{fig:color-detection-output-1} - \ref{fig:color-detection-output-4} shows output of algorithm 2 using all three color databases, 6 k-means clusters, and the top 3 colour names.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{img/cv/colour_detection/colour_detection_1.png}
+\caption{Colour detection output}
+\label{fig:color-detection-output-1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{img/cv/colour_detection/colour_detection_2.png}
+\caption{Colour detection output}
+\label{fig:color-detection-output-2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{img/cv/colour_detection/colour_detection_3.png}
+\caption{Colour detection output}
+\label{fig:color-detection-output-3}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{img/cv/colour_detection/colour_detection_4.png}
+\caption{Colour detection output}
+\label{fig:color-detection-output-4}
+\end{figure}
+
+The small database isn't descriptive enough, the medium database has trouble on some real world images, particularly in poor lighting conditions, and the large database is a little too descriptive, some of the colours sound confusing even to sighted individuals. We ended up choosing the medium database to use in production, as it works well as long as the lighting conditions are acceptable, so we can suggest to the user to use the flash on the phone when taking images.
+
 
 \subsubsection{Money Classification}
 
@@ -452,6 +514,18 @@ Singhal, G. (2020, May 5). Gaurav Singhal. Pluralsight. Retrieved December 4, 20
 
 \bibitem{google-languages}
 “OCR language support | cloud vision API |; google cloud,” Google. [Online]. Available: https://cloud.google.com/vision/docs/languages. [Accessed: 03-Apr-2022]. 
+
+\bibitem{color-small-medium}
+“RGB color codes chart - RapidTables.com.” [Online]. Available: https://www.rapidtables.com/web/color/RGB\_Color.html. [Accessed: 06-Apr-2022]. 
+
+\bibitem{color-large}
+Codebrainz, “Color-names/colors.csv at master · codebrainz/color-names,” GitHub, 01-Jul-2012. [Online]. Available: https://github.com/codebrainz/color-names/blob/master/output/colors.csv. [Accessed: 06-Apr-2022]. 
+
+\bibitem{k-means-wikipedia}
+“K-means clustering,” Wikipedia, 20-Mar-2022. [Online]. Available: https://en.wikipedia.org/wiki/K-means\_clustering. [Accessed: 05-Apr-2022].
+
+\bibitem{k-means-opencv}
+“K-means clustering in opencv,” OpenCV. [Online]. Available: https://docs.opencv.org/4.x/d1/d5c/tutorial\_py\_kmeans\_opencv.html. [Accessed: 05-Apr-2022]. 
 
 \end{thebibliography}
 
