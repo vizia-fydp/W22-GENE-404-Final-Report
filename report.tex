@@ -252,7 +252,7 @@ The spring 2021 term was when Waleed, Zain, and Connor took GENE 403, and Martin
 
 At this point, we were still planning on using Bluetooth to communicate the OCR results from the glasses to the iOS device, which would perform speech synthesis and audio playback. The iOS device would also be responsible for forwarding WiFi credentials to the glasses, which would allow the glasses to configure the WiFi network on it's own.
 
-A lot of OCR testing was done this term, using various libraries to try and determine which one would fit our needs best. Tesseract-OCR \cite{tesseract-github}, EasyOCR \cite{easy-ocr}, and PaddleOCR \cite{paddle-ocr} were tested, and we determined EasyOCR would fit our needs best since it provided good performance and looked the easiest to integrate with our solution.
+A lot of OCR testing was done this term, using various libraries to try and determine which one would fit our needs best. Tesseract-OCR \cite{tesseract-github}, EasyOCR \cite{easy-ocr}, and PaddleOCR \cite{paddle-ocr} were tested, and we determined EasyOCR would fit our needs best since it provided good performance and looked the easiest to integrate with our solution. The three text modalities we wanted to support in our solution were text-in-the-wild, document text, and handwritten text.
 
 The hardware platform for the glasses became more defined this term, as we decided a Raspberry Pi Zero W \cite{rpi-zero-w} would fit our needs, along with a 8 MP PiCamera \cite{rpi-camera}, buttons for interacting with the glasses, and a piezeoelectric buzzer for audio feedback to the user. The physical glasses design was yet to be finalized at this point, and our options were to either retrofit an existing pair of glasses with a clip-on solution, or make an entirely new pair of glasses specifically built for our platform.
 
@@ -265,6 +265,14 @@ The hardware platform for the glasses became more defined this term, as we decid
 \label{fig:system_diagram_v3}
 \end{figure}
 
+In the fall 2021 term, Martin took GENE 403, while Waleed, Zain, and Connor were on co-op. Despite only one of us being in a school term, all of us still worked on the project and significant progress was made. One of the key changes to the system design was that the glasses and iOS device no longer communicate directly with each other. We realized that since we already introduced the requirement for the glasses to be connected to WiFi, we could propagate the same requirement to the iOS device as well, which allows the iOS device to now also be able to talk to the server. This is important because we wanted the iOS device to also be able to send images to the server and get results, meaning the app can function stand-alone without the glasses if this is desired. The server APIs are agnostic as to where the image comes from, so from its perspective, it doesn't matter if the image is coming from the glasses or the iOS device.
+
+We tested another OCR library this term; Google Cloud Vision \cite{google-vision-api}, and found that it was even easier to use than EasyOCR, and the Google APIs also supported handwritten text, which is something EasyOCR did not perform as well on.
+
+Most of the server code was written this term, and we also choose to introduce two new computer vision features: colour detection and money classification. We determined colour detection was straightforward enough to implement ourselves, see Section \ref{colour-detection} for an overview of our implementation. For money classification, we determined we needed to build a custom dataset of bills in real-world scenarios. We choose to support US bills since they do not have braille on them, which Canadian bills do have. We began building the money dataset and did some initial training on it as well, and the results looked encouraging.
+
+The UI/UX for the iOS app was finalized, and a non-functional version of it was implemented. Simultaneously, some of the technical features; such as image capture, speech synthesis, and socket communication with the server to receive results, were developed in a separate test app. This way, once the UI/UX was ready, it would mostly be a matter of plugging in the functionality.
+
 \subsection{Winter 2022}
 \label{winter-2022-design}
 \begin{figure}[H]
@@ -273,6 +281,12 @@ The hardware platform for the glasses became more defined this term, as we decid
 \caption{System design v4}
 \label{fig:system_diagram_v4}
 \end{figure}
+
+In the winter 2022 term, all of our team members took GENE 404 together. At the beginning of this term, we had most of the functionality of our design implemented, and the goal was to polish it and integrate it all together. The main component of our solution that was yet to be designed was the glasses casing. We opted to go with a clip-on design, and all of the work to design, iterate, and integrate it with the glasses was carried out this term.
+
+On the server, money classification was improved, by adding more images to the dataset, and also introducing a "no bill" class that would be used to identify when there was no bill in the image. The server code was polished and tested thoroughly as well to make sure everything worked well.
+
+The UI/UX for the iOS app was mostly complete at the beginning of the term, and all of the functionality was brought into the app. Lots of integration testing was done between the app and the server, and then ultimately with the glasses as well once that was ready. One additional feature that was introduced to the app was multi-language speech synthesis. We noticed the Google Vision API would also return the language the text was detected in, and we forwarded this information to the app and used Apple's native speech synthesis libraries \cite{apple-speech-synthesis}, and to our surprise, it worked well out of the box for multiple languages. Before this term, we had only ever tried speech synthesis in English, but we tried out French, German, Spanish, and Arabic this term, all of which worked well.
 
 \newpage
 \section{Design Verification/Validation Summary}
@@ -331,13 +345,14 @@ Optical Character Recognition is generally a difficult task for computer vision 
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.5]{img/cv/ocr_text_in_the_wild.png}
-\includegraphics[scale=0.5]{img/cv/ocr_handwriting.png}
+\includegraphics[scale=0.5]{img/cv/ocr/ocr_text_in_the_wild.png}
+\includegraphics[scale=0.5]{img/cv/ocr/ocr_handwriting.png}
 \caption{Examples of results from Google Cloud Vision API}
 \label{fig:google_vision_examples}
 \end{figure}
 
 \subsubsection{Colour Detection}
+\label{colour-detection}
 Colour detection refers to identifying the most prevalent colours in an image. We got the idea to implement this since the feature exists in Seeing AI, and the individual we spoke with from Lighthouse SF mentioned she used this feature often to identify the colours of clothing, in order to decide what outfit to wear. We determined this would be a relatively straightforward algorithm to implement so we did it ourselves. Since the end goal is to report colours by name, and not the pixel values, we needed a database of colours with their associated RGB values to use as a reference. We used three such databases, which we referred to as small, medium, large, and they can be found
 \href{https://github.com/vizia-fydp/server/tree/main/color_detection}{\color{blue}{here}}
  in our server repository. The small and medium databases are from \cite{color-small-medium}, and the large one is from \cite{color-large}. The small, medium and large databases have 17, 140, and 866 colours respectively. Note that we included HSV pixels for each colour as well as that is something we wanted to experiment with.
@@ -396,6 +411,72 @@ The small database isn't descriptive enough, the medium database has trouble wit
 
 
 \subsubsection{Money Classification}
+
+Money classification is the task of identifying the type of bill being shown in the image. We targeted American bills only for this task since Canadian bills have braille on them to identify the bill type. After some research, we could not find any open-source money classification algorithms already existing. Therefore, we decided to implement our own classification algorithm.
+
+It was decided early on that a convolutional neural network (CNN) would be a good fit for this task, since these types of networks are typically very good at classifying objects based on visual patterns. The first step to having a CNN classify bills is building a dataset. To build this dataset, members of the group acquired American bills and took photos of them in various situations and orientations using their phones. The photos were saved in a folder on Google Drive and the images were separated into sub-folders, each corresponding to the type of bill. The bill types we looked to classify are the 1, 5, 10, 20, and 50 dollar bills. We tried collecting images of the bills in as many situations as possible, to ensure robustness in our classifier. Some of the possible situations we thought of are:
+
+\begin{enumerate}
+    \item Bill in center of image vs. bill closer to edge of image
+    \item Nice bill vs. bill with edges folded vs. crumpled bill
+    \item Holding bill in hand vs. bill resting on table/chair/floor
+    \item Indoors vs. outdoors
+    \item Good lighting vs. bad lighting
+    \item Front side of bill vs. back side of bill
+    \item Bill upside down
+    \item Bill rotated
+\end{enumerate}
+
+Some example images from the dataset can be seen in Figures \ref{fig:one_dollar_nice} and \ref{fig:one_dollar_hard}. In the first image, we can see an example of a relatively easy bill to classify. In the second image, this is clearly a more difficult problem due to the bill being folded multiple times.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.1]{img/cv/money/one_dollar_bill_nice.jpeg}
+\caption{Easy example of a one dollar bill.}
+\label{fig:one_dollar_nice}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.1]{img/cv/money/one_dollar_bill_hard.jpeg}
+\caption{Difficult example of a one dollar bill.}
+\label{fig:one_dollar_hard}
+\end{figure}
+
+This preliminary dataset ended up having 405 total images. To train on this dataset, it was first split into training and validation sets at a ratio of 70\% for training and 30\% for validation. The PyTorch deep learning library was then used to train a ResNet-34 CNN on this dataset. Figure \ref{fig:resnet} has a diagram showing the architecture of the ResNet-18 model. Note that the ResNet-34 is simply a scaled up version of the ResNet-18. After some hyperparameter tuning, the resulting best model achieved a validation accuracy of 94.2\%. The accuracy curves and validation confusion matrix can be seen in Figures \ref{fig:train_acc} to \ref{fig:conf_matrix}.
+
+\begin{figure}[H]
+\centering
+\frame{\includegraphics[scale=0.5]{img/cv/money/resnet18.png}}
+\caption{Diagram explaining the ResNet-18 CNN architecture. \cite{resnet}}
+\label{fig:resnet}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.09]{img/cv/money/train_acc.png}
+\caption{Plot of training accuracy per epoch for the best run.}
+\label{fig:train_acc}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.09]{img/cv/money/val_acc.png}
+\caption{Plot of validation accuracy per epoch for the best run.}
+\label{fig:val_acc}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.75]{img/cv/money/conf_matrix.png}
+\caption{Confusion matrix for the best run.}
+\label{fig:conf_matrix}
+\end{figure}
+
+As you can see, the classifier performs well on the given dataset. However, it could definitely be improved by collecting more training data.
+
+
+
 
 \subsection{iOS App}
 
@@ -459,7 +540,7 @@ The small database isn't descriptive enough, the medium database has trouble wit
 \section{Appendix B - Verification and Validation Data}
 \subsection{Bluetooth}
 \label{bluetooth}
-We had initially planned to use a Bluetooth Low Energy (BLE) connection to facilitate image transferring between the Raspberry Pi and the user's iOS device. We based this requirement around Apple's CoreBluetooth framework, and their restrictions on the amount of background processing iOS applications can perform. iOS has extremely aggressive memory and power management systems, which put apps into a suspended state when not in the foreground (i.e. when not open on the user's screen). Apple allows applications to request permission to perform background tasks, with certain limitations. One such permission is the ability to monitor communications from a paired BLE peripheral and act upon incoming data \cite{apple-bluetooth}. Once an incoming BLE packet destined for an application is detected, iOS provides a 15-30 second window for said application to complete any tasks it needs to do to react to this data before putting them back into a suspended state automatically.
+We had initially planned to use a Bluetooth Low Energy (BLE) connection to facilitate image transferring between the Raspberry Pi and the user's iOS device. We based this requirement around Apple's CoreBluetooth framework \cite{apple-bluetooth}, and their restrictions on the amount of background processing iOS applications can perform. iOS has extremely aggressive memory and power management systems, which put apps into a suspended state when not in the foreground (i.e. when not open on the user's screen). Apple allows applications to request permission to perform background tasks, with certain limitations. One such permission is the ability to monitor communications from a paired BLE peripheral and act upon incoming data \cite{apple-bluetooth}. Once an incoming BLE packet destined for an application is detected, iOS provides a 15-30 second window for said application to complete any tasks it needs to do to react to this data before putting them back into a suspended state automatically.
 
 We had planned to compress an image into JPEG format on the Raspberry Pi, then send a BLE notification to the iOS device that a new image was available for processing. The iOS device would then wake up the background application and pass along the BLE packet. The iPhone could then connect to the Raspberry Pi and retrieve the image. However, we discovered that BLE's extremely lightweight nature makes it impractical for transmitting large files (such as an image). The Raspberry Pi uses a Bluetooth 4.1 chip \cite{raspi-hardware}, which imposes a limit on the size of the data field in a transmitted BLE packet. The iPhone has a Bluetooth 4.2 chip \cite{iphone-hardware} which is capable of communicating with the Raspberry Pi's older chip, but is rate limited by the Pi's hardware. The maximum size of a data field in a packet sent between the two devices is therefore 27 bytes, although 4 of these bytes are used to store an offset (so that files larger than 27 bytes can be sent using consecutive packets. Additionally, iOS allows a maximum of 4 packets to be exchanged before a new BLE connection needs to be made. The BLE protocol also mandates a connection interval, which varies by device but is set to 15ms on all devices running iOS 11 or later \cite{apple-bluetooth}. This means that it would take almost a minute to transmit the smallest photo we could reasonably perform OCR on. This falls outside the window that iOS provides for a device to perform processing, before the application even receives the image.
 
