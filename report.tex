@@ -234,7 +234,7 @@ There is a possible issue of patent infringement concerning the doctrine of equi
 
 \section{Design for Safety}
 
-\section{Design for Regularity Requirements}
+\section{Design for Regulatory Requirements}
 
 \section{Impact on Society and Environment}
 
@@ -255,7 +255,9 @@ There is a possible issue of patent infringement concerning the doctrine of equi
 \label{fig:system_diagram}
 \end{figure}
 
-Our design consists of 3 components: glasses, server, and an iOS application. Figure \ref{fig:system_diagram} shows how these components interact with each other. The glasses sends an image to the server, the server processes the image, and then the results are sent to the iOS app to be presented to the user through audio. The app is also capable of taking images and sending it to the server, and this allows the app to be used without the glasses.
+Our design consists of 3 components: glasses, a server, and an iOS application. Figure \ref{fig:system_diagram} shows how these components interact with each other. The glasses send an image to the server, the server processes the image, and then the results are sent to the iOS app to be presented to the user through audio. The app is also capable of taking images and sending them to the server, and this allows the app to be used without the glasses.
+
+Our original vision for this project was to avoid the need for an internet connection on the glasses and iOS device. Our goal was to do all of the computer vision processing on the iOS device and communicate information between the glasses and the iOS device using Bluetooth. However, we discovered Bluetooth limitations that make it impractical to reliably and quickly send an image over Bluetooth. See sections \ref{bluetooth} and \ref{apple-mfi} for more details.
 
 \newpage
 \subsection{Glasses}
@@ -265,10 +267,11 @@ Our design consists of 3 components: glasses, server, and an iOS application. Fi
     \includegraphics[width={0.3\linewidth}]{img/glasses/right.jpg}
 \end{center}
 
-A 3D printed clip-on design was used to allow flexibility since it can be attached to any pair of glasses. There are two pieces that attach to the glasses, the module on the right side is the compute unit, storing a Raspberry Pi Zero W, Adafruit PowerBoost 500, 8 MP Camera, 2 buttons, and an piezoelectric buzzer. The Raspberry Pi is responsible for all of the compute and managing the GPIO, the PowerBoost board is for power management, one button is to take a picture, another is to switch between different processing modes, and the piezoelectric buzzer is to communicate any errors or low battery warnings. The module on the left side is the power supply, which is a battery holder for 3 AAA batteries. There is a wire that goes between the 2 modules to connect the power supply, and this wire also doubles as a holder for the glasses in case the user wants to take it off their face and keep it around their neck. The great thing about this design is that the total cost of parts is less than 200 Canadian dollars, and the CAD files are provided by us so anybody can print the clip-on design using a 3D printer.
+A 3D printed clip-on design was used to allow flexibility since it can be attached to any pair of glasses. There are two pieces that attach to the glasses, the module on the right side is the compute unit, storing a Raspberry Pi Zero W, Adafruit PowerBoost 500, 8 MP Camera, 2 buttons, and a piezoelectric buzzer. The Raspberry Pi is responsible for all of the compute and managing the GPIO, the PowerBoost board is for power management, one button is to take a picture, another is to switch between different processing modes, and the piezoelectric buzzer is to communicate any errors or low battery warnings. The module on the left side is the power supply, which is a battery holder for 3 AAA batteries. There is a wire that goes between the 2 modules to connect the power supply, and this wire also doubles as a holder for the glasses in case the user wants to take it off their face and keep it around their neck. The great thing about this design is that the total cost of parts is less than 200 Canadian dollars, and the CAD files are provided by us so anybody can print the clip-on design using a 3D printer.
 
 \subsection{Server}
-The server is where all of the computer vision processing happens, and the results of the computation is sent back as a response and it can also be emitted on a socket, which the iOS app listens on so that it can received the results in the event that the image was sent from the glasses. There are 3 features supported by the server: optical character recognition (OCR), colour detection, and money classification. The server is implemented in Flask, a micro web framework written in Python, and it was chosen since our computer vision code is implemented in Python, so having the server code in the same language makes it easier. There are 4 APIs exposed by the server:
+\label{server}
+The server is where all of the computer vision processing happens, and the results of the computation are sent back as a response and it can also be emitted on a socket, which the iOS app listens on so that it can receive the results in the event that the image was sent from the glasses. There are 3 features supported by the server: optical character recognition (OCR), colour detection, and money classification. The server is implemented in Flask, a micro web framework written in Python, and it was chosen since our computer vision code is implemented in Python, so having the server code in the same language makes it easier. There are 4 APIs exposed by the server:
 
 \begin{itemize}
     \item \texttt{/ocr}: Performs optical character recognition.
@@ -278,7 +281,7 @@ The server is where all of the computer vision processing happens, and the resul
 \end{itemize}
 
 \subsubsection{Optical Character Recognition (OCR)}
-Optical Character Recognition is generally a difficult task for computer vision systems. There are currently many existing solutions available to perform OCR. During the Spring 2021 term, different OCR libraries were tested and the best library was selected to be used in the project. Please refer to our Spring 2021 report for the details of the testing. As a summary, we tested EasyOCR, PaddleOCR, Tesseract-OCR, and the Google Cloud Vision API, and found that the Google Cloud Vision API offered the best performance and the most features. This term, we further tested the google cloud vision API and became more confident in it's performance and capabilities. One new feature we incorporated was supported language specific text synthesis. We noticed the results from the google API returned a language code for the text it finds, and we are able to forward this language code to the iOS app's speech synthesizer, and this way, it will speak the text in the locale of the language it is detected in. Google cloud vision API currently supports 60 language \cite{google-languages}, and while we didn't verify every single of them, we tried a subset of them with our iOS speech synthesis and it appeared to work well. Additionally, the Google vision API supports all three of our target modalities: text-in-the-wild, documents, and handwritten. See figure \ref{fig:google_vision_examples} below for example output from the Google APIs.
+Optical Character Recognition is generally a difficult task for computer vision systems. There are currently many existing solutions available to perform OCR. During the Spring 2021 term, different OCR libraries were tested and the best library was selected to be used in the project. Please refer to our Spring 2021 report for the details of the testing. In summary, we tested EasyOCR, PaddleOCR, Tesseract-OCR, and the Google Cloud Vision API, and found that the Google Cloud Vision API offered the best performance and the most features. This term, we further tested the google cloud vision API and became more confident in its performance and capabilities. One new feature we incorporated was language-specific text synthesis. We noticed the results from the Google API returned a language code for the text it finds, and we are able to forward this language code to the iOS app's speech synthesizer, and this way, it will speak the text in the locale of the language it is detected in. Google Cloud vision API currently supports 60 languages \cite{google-languages}, and while we didn't verify every single of them, we tried a subset of them with our iOS speech synthesis and it appeared to work well. Additionally, the Google vision API supports all three of our target modalities: text-in-the-wild, documents, and handwritten. See figure \ref{fig:google_vision_examples} below for example output from the Google APIs.
 
 \begin{figure}[H]
 \centering
@@ -289,9 +292,9 @@ Optical Character Recognition is generally a difficult task for computer vision 
 \end{figure}
 
 \subsubsection{Colour Detection}
-Colour detection refers to identifying the most prevalent colours in an image. We got the idea to implement this since the feature exists in Seeing AI, and the individual we spoke with from Lighthouse SF mentioned she used this feature often to identify the colours of clothing, in order to decide what outfit to wear. We determined this would a be a relatively straightforward algorithm to implement so we did it ourselves. Since the end goal is to report colours by name, and not the pixel values, we needed a database of colours with their associated RGB values to use as a reference. We used three such databases, which we referred to as small, medium, large, and they can be found
+Colour detection refers to identifying the most prevalent colours in an image. We got the idea to implement this since the feature exists in Seeing AI, and the individual we spoke with from Lighthouse SF mentioned she used this feature often to identify the colours of clothing, in order to decide what outfit to wear. We determined this would be a relatively straightforward algorithm to implement so we did it ourselves. Since the end goal is to report colours by name, and not the pixel values, we needed a database of colours with their associated RGB values to use as a reference. We used three such databases, which we referred to as small, medium, large, and they can be found
 \href{https://github.com/vizia-fydp/server/tree/main/color_detection}{\color{blue}{here}}
- in our server repository. The small and medium databases are from \cite{color-small-medium}, and the large one is from \cite{color-large}. The small, medium, and large databases have 17, 140, and 866 colours respectively. Note that we included HSV pixels for each colour as well as that is something we wanted to experiment with.
+ in our server repository. The small and medium databases are from \cite{color-small-medium}, and the large one is from \cite{color-large}. The small, medium and large databases have 17, 140, and 866 colours respectively. Note that we included HSV pixels for each colour as well as that is something we wanted to experiment with.
 
 To implement this feature, we came up with two algorithms, described below:
 
@@ -300,8 +303,6 @@ To implement this feature, we came up with two algorithms, described below:
     \item For each pixel, find the euclidean distance to each colour in the database. The colour with the smallest euclidean distance is chosen as the best match for this pixel. Keep a count of which colours appear, and sort it by count, from highest to lowest count. Pick off the top K colours from this count.
     \item If K colours are desired, performs K-Means Clustering \cite{k-means-wikipedia, k-means-opencv} with 2*K clusters, pick out the top K clusters and calculate euclidean distance between the cluster mean and all colours in the database. Pick the colour from the database with the smallest euclidean distance as the match for that cluster.
 \end{enumerate}
-
-
 
 The equation for the euclidean distance can be seen in Equation \ref{eq:euclidean_dist}, where $d_i$ is the distance to the $i_{th}$ colour in the database. 
 
@@ -345,7 +346,7 @@ Figures \ref{fig:color-detection-output-1} - \ref{fig:color-detection-output-4} 
 \label{fig:color-detection-output-4}
 \end{figure}
 
-The small database isn't descriptive enough, the medium database has trouble on some real world images, particularly in poor lighting conditions, and the large database is a little too descriptive, some of the colours sound confusing even to sighted individuals. We ended up choosing the medium database to use in production, as it works well as long as the lighting conditions are acceptable, so we can suggest to the user to use the flash on the phone when taking images.
+The small database isn't descriptive enough, the medium database has trouble with some real-world images, particularly in poor lighting conditions, and the large database is a little too descriptive, some of the colours sound confusing even to sighted individuals. We ended up choosing the medium database to use in production, as it works well as long as the lighting conditions are acceptable, so we can suggest to the user to use the flash on the phone when taking images.
 
 
 \subsubsection{Money Classification}
@@ -354,7 +355,21 @@ The small database isn't descriptive enough, the medium database has trouble on 
 
 \newpage
 \section{Appendix B - Verification and Validation Data}
+\subsection{Bluetooth}
+\label{bluetooth}
+We had initially planned to use a Bluetooth Low Energy (BLE) connection to facilitate image transferring between the Raspberry Pi and the user's iOS device. We based this requirement around Apple's CoreBluetooth framework, and their restrictions on the amount of background processing iOS applications can perform. iOS has extremely aggressive memory and power management systems, which put apps into a suspended state when not in the foreground (i.e. when not open on the user's screen). Apple allows applications to request permission to perform background tasks, with certain limitations. One such permission is the ability to monitor communications from a paired BLE peripheral and act upon incoming data \cite{apple-bluetooth}. Once an incoming BLE packet destined for an application is detected, iOS provides a 15-30 second window for said application to complete any tasks it needs to do to react to this data before putting them back into a suspended state automatically.
 
+We had planned to compress an image into JPEG format on the Raspberry Pi, then send a BLE notification to the iOS device that a new image was available for processing. The iOS device would then wake up the background application and pass along the BLE packet. The iPhone could then connect to the Raspberry Pi and retrieve the image. However, we discovered that BLE's extremely lightweight nature makes it impractical for transmitting large files (such as an image). The Raspberry Pi uses a Bluetooth 4.1 chip \cite{raspi-hardware}, which imposes a limit on the size of the data field in a transmitted BLE packet. The iPhone has a Bluetooth 4.2 chip \cite{iphone-hardware} which is capable of communicating with the Raspberry Pi's older chip, but is rate limited by the Pi's hardware. The maximum size of a data field in a packet sent between the two devices is therefore 27 bytes, although 4 of these bytes are used to store an offset (so that files larger than 27 bytes can be sent using consecutive packets. Additionally, iOS allows a maximum of 4 packets to be exchanged before a new BLE connection needs to be made. The BLE protocol also mandates a connection interval, which varies by device but is set to 15ms on all devices running iOS 11 or later \cite{apple-bluetooth}. This means that it would take almost a minute to transmit the smallest photo we could reasonably perform OCR on. This falls outside the window that iOS provides for a device to perform processing, before the application even receives the image.
+
+Our workaround for this Bluetooth limitation was to drop the offline requirement and introduce a server between the glasses and iOS app that would be responsible for all the image processing and computer vision. See section \ref{server} for a detailed overview of the server.
+
+A next step to bring our design closer to a final product would be to take advantage of the Apple MFi program \cite{apple-mfi}. This would allow us to remove the need for the server and honour our original requirement of having the glasses and iOS app work without a network connection. See section \ref{apple-mfi} for more.
+
+\subsection{Apple MFi}
+\label{apple-mfi}
+Bluetooth Classic is a different version of Bluetooth which supports much higher throughput; BT Classic connections are two-way, continuous data streams up to 2.1Mbps \cite{bluetooth-classic}. iOS supports this version of Bluetooth, although it is restricted to embedded chips with Apple's MFi (Made For iPod) certification \cite{apple-mfi}. Using Bluetooth Classic would provide the data transfer speeds needed to send an image quickly enough to provide a good user experience, although the ability to perform background processing is restricted to BLE devices. Nevertheless, this would enable us to perform OCR on a piece of text and read it back while the user is offline. In our final product, we would apply for an Apple MFi certification in order to unlock the full potential of Bluetooth on iPhone.
+
+\newpage
 \section{Appendix C - Design Project Management Data}
 
 
