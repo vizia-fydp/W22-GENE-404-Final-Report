@@ -226,9 +226,53 @@ Conveniently, the reason OrCam products are so expensive is also the reason we c
 There is a possible issue of patent infringement concerning the doctrine of equivalents \cite{doctrine-of-equivalents}. This doctrine is a common legal rule which states that a device that does not literally fall within the realm of a patent may still be infringing upon said patent if it performs an identical function. This principle is often a legal grey area, and disputes regarding it are typically settled through a patent lawyer. While not experts, we believe that our solution avoids the doctrine of equivalents. While the system as a whole does perform a similar function to the OrCam MyEye 2, the subsystems involved do not. The wearable hardware's only purpose is to transmit an image wirelessly to either a server or a paired mobile app. In turn, the mobile application/server's only responsibility is to perform optical character recognition on an image. This image can be transmitted from an external source, or possibly captured by the smartphone camera. As a result, the solution performs an arguably different function entirely to OrCam's product. One of the qualifiers for the doctrine of equivalents to come into effect is that a "person skilled in the art" should consider the device or process equivalent to the patent being infringed upon \cite{doctrine-of-equivalents}. We feel confident that the novel addition of performing machine-learning on a mobile device and servers significantly differentiates our solution from OrCam's.
 
 
-\newpage
-\section{Design Solution Summary}
+\section{Design Solution and Reformulation Summary}
+Our design solution went through a few iterations as the terms went on. Sections \ref{winter-2021-design} - \ref{winter-2022-design} shows the system diagram in each term and highlights the key changes/reformulations for each iteration.
 
+\subsection{Winter 2021}
+\label{winter-2021-design}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.265]{img/system_diagrams/system_diagram_v1.jpeg}
+\caption{System diagram v1}
+\label{fig:system_diagram_v1}
+\end{figure}
+The winter 2021 term was prior to GENE 403 and was when we worked on our preliminary report to enroll in GENE 403. This term was spent brainstorming ideas and was when we decided the problem space we wanted to tackle was assistive devices for the visually impaired. Our initial conceptual design can be seen in Figure \ref{fig:system_diagram_v1}. The design was limited to only OCR at the time, and our primary goal was to build this solution without the need for a WiFi connection on both the glasses and iOS app, meaning it could work fully offline. The thinking was that if the phone has a strong enough chip, on-device processing would be sufficient for OCR, and we could communicate information between the glasses and iOS device using Bluetooth. Additionally, we had yet to decide at this point which text modalities our solution would support for OCR.
+
+\subsection{Spring 2021}
+\label{spirng-2021-design}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{img/system_diagrams/system_diagram_v2.png}
+\caption{System diagram v2}
+\label{fig:system_diagram_v2}
+\end{figure}
+
+The spring 2021 term was when Waleed, Zain, and Connor took GENE 403, and Martin was on a co-op term. The biggest change to our design this term was the introduction of a server to handle the OCR processing. The reason we decided to introduce a server is that we realized Bluetooth was not sufficient to send an image in a reasonable amount of time, at least not without Apple MFi certification. See sections \ref{bluetooth} and \ref{apple-mfi} for more on Bluetooth and Apple MFi. With the introduction of the server, a reliable WiFi connection is now required on the glasses to communicate with the server. 
+
+At this point, we were still planning on using Bluetooth to communicate the OCR results from the glasses to the iOS device, which would perform speech synthesis and audio playback. The iOS device would also be responsible for forwarding WiFi credentials to the glasses, which would allow the glasses to configure the WiFi network on it's own.
+
+A lot of OCR testing was done this term, using various libraries to try and determine which one would fit our needs best. Tesseract-OCR \cite{tesseract-github}, EasyOCR \cite{easy-ocr}, and PaddleOCR \cite{paddle-ocr} were tested, and we determined EasyOCR would fit our needs best since it provided good performance and looked the easiest to integrate with our solution.
+
+The hardware platform for the glasses became more defined this term, as we decided a Raspberry Pi Zero W \cite{rpi-zero-w} would fit our needs, along with a 8 MP PiCamera \cite{rpi-camera}, buttons for interacting with the glasses, and a piezeoelectric buzzer for audio feedback to the user. The physical glasses design was yet to be finalized at this point, and our options were to either retrofit an existing pair of glasses with a clip-on solution, or make an entirely new pair of glasses specifically built for our platform.
+
+\subsection{Fall 2021}
+\label{fall-2021-design}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{img/system_diagrams/system_diagram_v3.png}
+\caption{System design v3}
+\label{fig:system_diagram_v3}
+\end{figure}
+
+\subsection{Winter 2022}
+\label{winter-2022-design}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.265]{img/system_diagrams/system_diagram_v4.png}
+\caption{System design v4}
+\label{fig:system_diagram_v4}
+\end{figure}
 
 \newpage
 \section{Design Verification/Validation Summary}
@@ -252,7 +296,7 @@ There is a possible issue of patent infringement concerning the doctrine of equi
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.265]{img/system_diagram.png}
+\includegraphics[scale=0.265]{img/system_diagrams/system_diagram_v4.png}
 \caption{System design diagram}
 \label{fig:system_diagram}
 \end{figure}
@@ -283,7 +327,7 @@ The server is where all of the computer vision processing happens, and the resul
 \end{itemize}
 
 \subsubsection{Optical Character Recognition (OCR)}
-Optical Character Recognition is generally a difficult task for computer vision systems. There are currently many existing solutions available to perform OCR. During the Spring 2021 term, different OCR libraries were tested and the best library was selected to be used in the project. Please refer to our Spring 2021 report for the details of the testing. In summary, we tested EasyOCR, PaddleOCR, Tesseract-OCR, and the Google Cloud Vision API, and found that the Google Cloud Vision API offered the best performance and the most features. This term, we further tested the google cloud vision API and became more confident in its performance and capabilities. One new feature we incorporated was language-specific text synthesis. We noticed the results from the Google API returned a language code for the text it finds, and we are able to forward this language code to the iOS app's speech synthesizer, and this way, it will speak the text in the locale of the language it is detected in. Google Cloud vision API currently supports 60 languages \cite{google-languages}, and while we didn't verify every single of them, we tried a subset of them with our iOS speech synthesis and it appeared to work well. Additionally, the Google vision API supports all three of our target modalities: text-in-the-wild, documents, and handwritten. See figure \ref{fig:google_vision_examples} below for example output from the Google APIs.
+Optical Character Recognition is generally a difficult task for computer vision systems. There are currently many existing solutions available to perform OCR. During the Spring 2021 term, different OCR libraries were tested and the best library was selected to be used in the project. Please refer to our Spring 2021 report for the details of the testing. In summary, we tested EasyOCR \cite{easy-ocr}, PaddleOCR \cite{paddle-ocr}, Tesseract-OCR \cite{tesseract-github}, and the Google Cloud Vision API \cite{google-vision-api}, and found that the Google Cloud Vision API offered the best performance and the most features. This term, we further tested the Google Cloud Vision API and became more confident in its performance and capabilities. One new feature we incorporated was language-specific text synthesis. We noticed the results from the Google API returned a language code for the text it finds, and we are able to forward this language code to the iOS app's speech synthesizer, and this way, it will speak the text in the locale of the language it is detected in. Google Cloud vision API currently supports 60 languages \cite{google-languages}, and while we didn't verify every single of them, we tried a subset of them with our iOS speech synthesis and it appeared to work well. Additionally, the Google vision API supports all three of our target modalities: text-in-the-wild, documents, and handwritten. See figure \ref{fig:google_vision_examples} below for example output from the Google APIs.
 
 \begin{figure}[H]
 \centering
@@ -584,6 +628,9 @@ https://www.raspberrypi.org/products/raspberry-pi-zero-w/
 
 \bibitem{resnet}
 Singhal, G. (2020, May 5). Gaurav Singhal. Pluralsight. Retrieved December 4, 2021, from https://www.pluralsight.com/guides/introduction-to-resnet.
+
+\bibitem{google-vision-api}
+“Vision AI | derive image insights via ML | cloud vision API | google cloud,” Google. [Online]. Available: https://cloud.google.com/vision. [Accessed: 07-Apr-2022]. 
 
 \bibitem{google-languages}
 “OCR language support | cloud vision API |; google cloud,” Google. [Online]. Available: https://cloud.google.com/vision/docs/languages. [Accessed: 03-Apr-2022]. 
