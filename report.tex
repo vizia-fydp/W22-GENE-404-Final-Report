@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt]{article}
+ct\documentclass[a4paper,11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{dmasproject}
 % if you need additional LaTeX packages, add them here
@@ -295,15 +295,27 @@ The UI/UX for the iOS app was mostly complete at the beginning of the term, and 
 \section{Design for Safety}
 
 \section{Design for Regulatory Requirements}
+Ontario (and the Canadian government), like many legal jurisdictions around the world, has regulations regarding the manufacture and sale of assistive devices. However, these regulations primarily impose restrictions upon medical technology. Our solution is non-intrusive and does not attempt or promise to perform a medical function of any kind. It, therefore, does not meet the requirements to be categorized as even a Class I medical device.
+
+While our solution may not need to adhere to laws governing medically assistive devices, there are other regulations relating to data usage and privacy that must be carefully considered. The primary feature of the device is to read text to the user from a written or printed source, including medical paperwork, letters, and other sensitive or personal documentation. Data ownership in Canada is governed by an overlapping set of provincial and federal regulations, which apply differently to various use cases \cite{pipeda}. Our solution does not store any data, nor does it tie images taken by the user to them in any way. As such, the device is compliant with all relevant regulations.
 
 \section{Impact on Society and Environment}
+It is an unfortunate fact that despite increasing awareness and regulatory support, many disabilities are not accommodated in day-to-day life. This can force an individual with a disability to ask for help when performing a mundane task, or worse yet be unable to do it at all. In our preliminary analysis, we found that one of the universal needs of the disabled is independence. This is also the most significant way in which our solution impacts society at large.
+
+The entire premise of our solution is increasing the independence of the blind or partially sighted when interacting with systems that are not designed to support accessibility (i.e. written materials without an accompanying braille translation). The solution is also designed to not be intrusive or obvious; almost all users of the product will have access to a pair of headphones, as iPhones come packaged with wired earbuds. The device is designed not to draw significant attention to the user, as smart glasses (while still not especially prevalent) are an established concept, and our product is functionally indistinguishable from them upon initial inspection. This low-profile, accessibility-improving solution fills an important niche for the blind or visually impaired when going about their lives with as much independence as possible.
+
+As previously mentioned in our survey of available technologies, products that are functionally similar to our solution do exist. However, they are prohibitively expensive, particularly for disabled individuals who may be on a fixed income or have limited ability to work. The inexpensive nature of our solution makes it drastically more accessible to those who need it, increasing its potential to improve the independence of the disabled. It is our opinion that products designed to improve accessibility should adhere to that principle in all aspects of their design, including affordability for the groups they target.
+
+Furthermore, we intend to make the entire platform (software, hardware, accompanying instructions) fully open-source. We firmly believe that the benefits of making the solution publicly available far outweigh any downsides related to losing profit should our project become a fully-fledged product. Not only does this make the product even more inclusive to those on a limited budget, but it provides the opportunity for technologically-minded individuals who are blind or partially sighted to contribute valuable new ideas and features we may not have considered. This has the added benefit of increasing the independence of the community as a whole; rather than needing to rely on general-purpose products which may not perfectly suit the requirements of an individual, open-sourcing the project means that a user can easily modify their own system, or build a new one based on our design.
+
+Finally, we chose to print the housing out of PLA, a cornstarch-based bioplastic. This material releases no harmful fumes when used for 3D printing, from either a health or environment standpoint. This material strikes a balance between durability and biodegradability, but it is able to be composted in an industrial environment (i.e. under higher temperatures, with the aid of microbial digestion). The main environmental benefit of using PLA is that no crude oil is used in its production; only corn. It is also one of the cheapest and easiest to use materials for 3D printing, making it an ideal candidate for a cheap, widely-available option for printing our open-source design.
 
 \section{Design Project Management Summary}
 
 \section{Conclusions and Recommendations for Future Work}
 
 \section{Acknowledgements}
-
+https://www.overleaf.com/project/6245c3ce4f2a564aea8bd3c6
 \newpage
 \section{Appendix A - Design Solution Description}
 \subsection{System Level Representation}
@@ -327,7 +339,12 @@ Our original vision for this project was to avoid the need for an internet conne
     \includegraphics[width={0.3\linewidth}]{img/glasses/right.jpg}
 \end{center}
 
-A 3D printed clip-on design was used to allow flexibility since it can be attached to any pair of glasses. There are two pieces that attach to the glasses, the module on the right side is the compute unit, storing a Raspberry Pi Zero W, Adafruit PowerBoost 500, 8 MP Camera, 2 buttons, and a piezoelectric buzzer. The Raspberry Pi is responsible for all of the compute and managing the GPIO, the PowerBoost board is for power management, one button is to take a picture, another is to switch between different processing modes, and the piezoelectric buzzer is to communicate any errors or low battery warnings. The module on the left side is the power supply, which is a battery holder for 3 AAA batteries. There is a wire that goes between the 2 modules to connect the power supply, and this wire also doubles as a holder for the glasses in case the user wants to take it off their face and keep it around their neck. The great thing about this design is that the total cost of parts is less than 200 Canadian dollars, and the CAD files are provided by us so anybody can print the clip-on design using a 3D printer.
+A 3D printed clip-on design was used to allow flexibility since it can be attached to any pair of glasses. There are two pieces that attach to the glasses, the module on the right side is the compute unit, storing a Raspberry Pi Zero W, Adafruit PowerBoost 500, 8 MP Camera, 2 buttons, and a piezoelectric buzzer. The Raspberry Pi is responsible for all of the compute and managing the GPIO, the PowerBoost board is for power management, one button is to take a picture, another is to switch between different processing modes, and the piezoelectric buzzer is to communicate any errors or low battery warnings. The module on the left side is the power supply, which is a battery holder for 3 AAA batteries. There is a wire that goes between the 2 modules to connect the power supply, and this wire also doubles as a holder for the glasses in case the user wants to take it off their face and keep it around their neck. The great thing about this design is that the total cost of parts is less than 200 Canadian dollars, and the STL files are provided by us so anybody can print the clip-on design using a 3D printer.
+
+\subsubsection{Housing Design and Fabrication}
+The housing for the glasses was designed from scratch using CAD software. The main goal of the housing was to be lightweight and compact, which was mostly a matter of measuring, test fitting, and repeating until the case was as tightly fit as possible. Most of the difficulty in designing the housing came from the challenge of designing a case that could be 3D printed using the minimum amount of support structures possible, as well as being able to be easily assembled and disassembled (ideally without glue). The housing also needed to function agnostic of the specific pair of glasses being used, meaning the mounting solution couldn't be integrated.
+
+The ultimate solution for the glasses was to print the case in three pieces, which attached to one another with integrated clips. Each part of the housing is printed facing downwards, i.e. with the flat side against the build plate. This allows for minimal use of support structures, resulting in a much faster print time, lower material usage, and high durability. Via the use of internal standoffs, the electronics are held in place inside the case without glue (while also being aligned with openings for cables/buttons/etc). Both the battery pack and electronics housing use a wrap-around clip system which holds itself together, meaning no glue is needed to assemble them. These clip harnesses attach to the glasses arms using 2 small clips; in order to size the system to their glasses, a user only needs to measure one arm of their glasses at two points, and then print all 4 small clips. The material cost of the case is around \$0.30, and the total print time is approximately 2h.
 
 \subsection{Server}
 \label{server}
@@ -414,7 +431,7 @@ The small database isn't descriptive enough, the medium database has trouble wit
 
 Money classification is the task of identifying the type of bill being shown in the image. We targeted American bills only for this task since Canadian bills have braille on them to identify the bill type. After some research, we could not find any open-source money classification algorithms already existing. Therefore, we decided to implement our own classification algorithm.
 
-It was decided early on that a convolutional neural network (CNN) would be a good fit for this task, since these types of networks are typically very good at classifying objects based on visual patterns. The first step to having a CNN classify bills is building a dataset. To build this dataset, members of the group acquired American bills and took photos of them in various situations and orientations using their phones. The photos were saved in a folder on Google Drive and the images were separated into sub-folders, each corresponding to the type of bill. The bill types we looked to classify are the 1, 5, 10, 20, and 50 dollar bills. We tried collecting images of the bills in as many situations as possible, to ensure robustness in our classifier. Some of the possible situations we thought of are:
+It was decided early on that a convolutional neural network (CNN) would be a good fit for this task, since these types of networks are typically very good at classifying object based on visual patterns. The first step to having a CNN classify bills is building a dataset. To build this dataset, members of the group acquired American bills and took photos of them in various situations and orientations using their phones. The photos were saved in a folder on Google Drive and the images were separated into sub-folders, each corresponding to the type of bill. The preliminary version of the dataset was collected in the Fall 2021 term, where we collected a total of 405 images for the dataset, corresponding to the bill types of 1, 5, 10, 20, and 50 dollar bills. At the start of the Winter 2022 term, we decided to collect more images for each bill class to increase robustness and also added images corresponding to 100 dollar bills. We also realized that we needed a "no bill" class, since the model was just predicting one of the bill classes even when there was not a bill present in the image. To collect images for this class, we simply collected images around our homes of random objects without any bills in the image. Our final dataset version had 706 total images belonging to 1, 5, 10, 20, 50, 100, and "no bill" classes. When collecting the bill images for the dataset, we tried collecting images of the bills in as many situations as possible, to ensure robustness in our classifier. Some of the possible situations we thought of are:
 
 \begin{enumerate}
     \item Bill in center of image vs. bill closer to edge of image
@@ -443,14 +460,23 @@ Some example images from the dataset can be seen in Figures \ref{fig:one_dollar_
 \label{fig:one_dollar_hard}
 \end{figure}
 
-This preliminary dataset ended up having 405 total images. To train on this dataset, it was first split into training and validation sets at a ratio of 70\% for training and 30\% for validation. The PyTorch deep learning library was then used to train a ResNet-34 CNN on this dataset. Figure \ref{fig:resnet} has a diagram showing the architecture of the ResNet-18 model. Note that the ResNet-34 is simply a scaled up version of the ResNet-18. After some hyperparameter tuning, the resulting best model achieved a validation accuracy of 94.2\%. The accuracy curves and validation confusion matrix can be seen in Figures \ref{fig:train_acc} to \ref{fig:conf_matrix}.
+To train on this dataset, it was first split into training and validation sets at a ratio of 75\% for training and 25\% for validation. The PyTorch deep learning library was then used to train a ResNet-50 CNN on this dataset. Back in the Fall 2021 term, a ResNet-34 was trained on the preliminary dataset, but we found that increasing the size of the model to ResNet-50 improved performance. Figure \ref{fig:resnet} has a diagram showing the architecture of the ResNet-18 model. Note that the ResNet-50 is simply a scaled up version of the ResNet-18, and the ResNet-18 architecture is just shown since it fits into a single diagram with no issues. Before feeding the images into the CNN, they were scaled down to a resolution of 384x384 to reduce inference time. Some data augmentation was also applied to increase the robustness of the trained classifier. The augmentations that were applied are:
+
+\begin{enumerate}
+    \item Rotate the bill by a random angle from -180 to 180 degrees. This was done to ensure the model is invariant to rotated bills.
+    \item Crop the image in a random location with a random sized crop. This was done to ensure the model is invariant to the location and size of the bill in the image.
+    \item Apply Gaussian blur with a random standard deviation. This was done to help the model be more robust to blurred images.
+    \item Apply colour jitter with a random strength. This was done to help the model be more robust to changes in brightness, contrast, saturation, and hue.
+\end{enumerate}
 
 \begin{figure}[H]
 \centering
 \frame{\includegraphics[scale=0.5]{img/cv/money/resnet18.png}}
-\caption{Diagram explaining the ResNet-18 CNN architecture. \cite{resnet}}
+\caption{Diagram displaying the ResNet-18 CNN architecture. \cite{resnet}}
 \label{fig:resnet}
 \end{figure}
+
+The Weights \& Biases library was used to perform a hyperparameter sweep in order to find the hyperparameter values that give the best performance. The Weights \& Biases sweep library uses Bayesian optimization to iteratively choose hyperparameter values and evaluate their performance until the sweep is terminated. The hyperparameters that were tuned are the learning rate, weight decay, and number of frozen layers. In the end, the optimized model managed to achieve a validation accuracy of 97.1\%. The accuracy curves and validation confusion matrix can be seen in Figures \ref{fig:train_acc} to \ref{fig:conf_matrix}.
 
 \begin{figure}[H]
 \centering
@@ -468,17 +494,36 @@ This preliminary dataset ended up having 405 total images. To train on this data
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.75]{img/cv/money/conf_matrix.png}
-\caption{Confusion matrix for the best run.}
+\includegraphics[scale=0.8]{img/cv/money/conf_matrix.png}
+\caption{Confusion matrix on the validation set for the best run.}
 \label{fig:conf_matrix}
 \end{figure}
 
-As you can see, the classifier performs well on the given dataset. However, it could definitely be improved by collecting more training data.
-
-
-
+As can be seen in the confusion matrix, the classifier performs well on the given dataset and can robustly classify various bill images. If pursued further, the performance of the model could be improved greatly by simply increasing the size of the dataset.
 
 \subsection{iOS App}
+\subsubsection{UI/UX Design}
+The final version of the iOS app uses similar design language to the initial prototypes, albeit with a different colour scheme. We found that while unique, the 'colourblind-safe' palette we had initially designed wasn't preferred by sighted users, and did not provide any substantial advantage over black and white. In fact, the coloured version had slightly worse text readability due to the lower contrast between the dark blue text and yellow background, as compared to black text on a white background.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{img/app/mono_swatch.png}
+\caption{Colour palette, with hex codes}
+\label{fig:mono_swatch}
+\end{figure}
+
+We also updated the playback screen to function as a modal, rather than a standalone page. In terms of design language, the transience of the playback page is much better suited to a modal format, which can be easily dismissed and provides more minimal functionality. The home screen of the app is functionally unchanged; the same design principles of large text/buttons, high contrast, and minimalism are applicable to the new application as well as the old one, so the design was carried over and polished.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.2]{img/app/landing.png}
+\includegraphics[scale=0.2]{img/app/playback.png}
+\caption{App landing page/playback modal}
+\label{fig:app_screenshots}
+\end{figure}
+\newpage
+
+Finally, the app has full-featured VoiceOver support, using Apple's latest accessibility features. This means that although the main screen has a carousel of buttons, a user interacting with it using VoiceOver will 'see' it as a series of stacked buttons which they can iterate through as though it was a list. Some features targeted towards sighted users are ignored by VoiceOver, such as the arrow buttons used to navigate between buttons. The 'positioning' of some elements is also changed. In mobile design for sighted users, high priority elements are placed near the user's thumb, and low-priority ones are placed at the top of the screen so that they are out of the way. For VoiceOver users, this means that the least important elements will be read first, which is obviously undesirable. By leveraging some of the new iOS VoiceOver features, we were able to reorganize the order in which button labels etc are read out, such that the most important elements appear first.
 
 \newpage
 \begin{landscape}
