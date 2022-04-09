@@ -505,7 +505,18 @@ The housing for the glasses was designed from scratch using CAD software. The ma
 The ultimate solution for the glasses was to print the case in three pieces, which attached to one another with integrated clips. Each part of the housing is printed facing downwards, i.e. with the flat side against the build plate. This allows for minimal use of support structures, resulting in a much faster print time, lower material usage, and high durability. Via the use of internal standoffs, the electronics are held in place inside the case without glue (while also being aligned with openings for cables/buttons/etc). Both the battery pack and electronics housing use a wrap-around clip system which holds itself together, meaning no glue is needed to assemble them. These clip harnesses attach to the glasses arms using 2 small clips; in order to size the system to their glasses, a user only needs to measure one arm of their glasses at two points, and then print all 4 small clips. The material cost of the case is around \$0.30, and the total print time is approximately 2h.
 
 \subsubsection{Electrical Design}
+In an effort to make the design as reproducible as possible, the electrical design of Vizia uses entirely common off-the-shelf components. The Raspberry Pi connects to two switches and one piezoelectric buzzer as shown in the schematic below.
 
+\begin{center}
+    \includegraphics[scale=1.0]{img/schematics/vizia-rpi.png}
+\end{center}
+
+The Adafruit PowerBoost 500 Board was used to connect the battery to the Raspberry Pi. A SPDT slide switch was connected to it to allow for a second point of power disconnection for the user. The power output pins of the PowerBoost were wired directly to a disassembled microUSB cable. A schematic describing these connections and images of the disassembled cable are shown below.
+
+\begin{center}
+    \includegraphics[scale=0.05]{img/schematics/vizia-power-usb-conn.png}
+    \includegraphics[scale=0.05]{img/schematics/vizia-power-usb.png}
+\end{center}
 
 \subsection{Server}
 \label{server}
@@ -1105,10 +1116,10 @@ Codebrainz, “Color-names/colors.csv at master · codebrainz/color-names,” Gi
 “Build apps for free on Heroku,” Heroku. [Online]. Available: https://www.heroku.com/free. [Accessed: 09-Apr-2022].
 
 \bibitem{aws-lambda}
-“Lambda,” Amazon, 2022. [Online]. Available: https://aws.amazon.com/lambda/. [Accessed: 09-Apr-2022]. 
+“Lambda,” Amazon. [Online]. Available: https://aws.amazon.com/lambda/. [Accessed: 09-Apr-2022]. 
 
 \bibitem{aws-ec2}
-“EC2,” Amazon, 1987. [Online]. Available: https://aws.amazon.com/ec2/. [Accessed: 09-Apr-2022].
+“EC2,” Amazon. [Online]. Available: https://aws.amazon.com/ec2/. [Accessed: 09-Apr-2022].
 
 \bibitem{pytorch}
 “Pytorch,” PyTorch. [Online]. Available: https://pytorch.org/. [Accessed: 09-Apr-2022]. 
