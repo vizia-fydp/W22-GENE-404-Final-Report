@@ -1,4 +1,4 @@
-ct\documentclass[a4paper,11pt]{article}
+\documentclass[a4paper,11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{dmasproject}
 % if you need additional LaTeX packages, add them here
@@ -289,8 +289,148 @@ On the server, money classification was improved, by adding more images to the d
 The UI/UX for the iOS app was mostly complete at the beginning of the term, and all of the functionality was brought into the app. Lots of integration testing was done between the app and the server, and then ultimately with the glasses as well once that was ready. One additional feature that was introduced to the app was multi-language speech synthesis. We noticed the Google Vision API would also return the language the text was detected in, and we forwarded this information to the app and used Apple's native speech synthesis libraries \cite{apple-speech-synthesis}, and to our surprise, it worked well out of the box for multiple languages. Before this term, we had only ever tried speech synthesis in English, but we tried out French, German, Spanish, and Arabic this term, all of which worked well.
 
 \newpage
+
 \section{Design Verification/Validation Summary}
 
+\subsection{Review of Compliance to Engineering Design Specification}
+See section \ref{eds-1.0} for the latest version of our engineering design specification. Below is a table with status estimates and comments on progress for each specification.
+
+\textbf{General}
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|p{0.7cm}|p{1cm}|p{12cm}|}
+    % \begin{tabular}{|c|c|c|}
+        \hline
+        No. & Status (\%) & Comments \\ \hline
+        
+        1.1 & 100 & Fully functioning prototype has been built and demoed. \\ \hline
+        
+        1.2 & 100 & Current hardware is well below price target. \\ \hline
+        
+        1.3 & 100 & Server is able to utilize the Google Cloud Vision API to perform OCR with satisfactory performance. \\ \hline
+        
+        1.4 & 100 & Able to run colour detection from the server and the algorithm performance is satisfactory. \\ \hline
+        
+        1.5 & 100 & Sizeable dataset has been collected and model has been trained and deployed to the server to perform money classification. \\ \hline
+        
+        1.6 & 100 & The Raspberry PI has been connected to a WiFi network. \\ \hline
+        
+        1.7 & 100 & Test iOS device has been connected to a WiFi network. \\ \hline
+        
+        1.8 & 100 & Implied when using the device. \\ \hline
+        
+        1.9 & 100 & Implied when using the device. \\ \hline
+    \end{tabular}
+\end{table}
+
+\textbf{Software - General}
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|p{0.7cm}|p{1cm}|p{12cm}|}
+    % \begin{tabular}{|c|c|c|}
+        \hline
+        No. & Status (\%) & Comments \\ \hline
+        
+        2.1.1 & 100 & UI has been designed and integrated into the app. UI has been optimized for use by a visually impaired person and VoiceOver integration was also optimized. \\ \hline
+        
+        2.1.2 & 90 & Server code has been successfully hosted on personal computer but not deployed on a cloud instance due to some issues with AWS. However, once deployed to AWS, there is a guaranteed uptime of 99.99\% given the application is hosted on multiple EC2 instances in at least two Availability Zones. \cite{aws-uptime} \\ \hline
+    \end{tabular}
+\end{table}
+
+\newpage
+\textbf{Software - iOS}
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|p{0.7cm}|p{1cm}|p{12cm}|}
+    % \begin{tabular}{|c|c|c|}
+        \hline
+        No. & Status (\%) & Comments \\ \hline
+        
+        2.2.1 & 100 & App is able to communicate with the server through WiFi. \\ \hline
+        
+        2.2.2 & 100 & App is able to send requests to the server and receive responses. \\ \hline
+        
+        2.2.3 & 100 & App is able to apply text-to-speech to response received from server. \\ \hline
+        
+        2.2.4 & 100 & Text-to-speech is currently able to speak over 30 languages. \cite{voiceover-langs} \\ \hline
+    \end{tabular}
+\end{table}
+
+\textbf{Software - Artificial Intelligence}
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|p{0.7cm}|p{1cm}|p{12cm}|}
+    % \begin{tabular}{|c|c|c|}
+        \hline
+        No. & Status (\%) & Comments \\ \hline
+        
+        2.3.1 & 75 & Machine text is handled well by the Google Cloud Vision API based on test images. However, we ran out of time to build the custom test set. \\ \hline
+        
+        2.3.2 & 75 & Google Cloud Vision API seems to handle handwritten text relatively well, with some errors. However, we ran out of time to build the custom test set. \\ \hline
+        
+        2.3.3 & 75 & Google Cloud Vision API seems to handle text-in-the-wild well based on some test images. However, we ran out of time to build the custom test set. \\ \hline
+        
+        2.3.4 & 100 & Model was trained and tested on different subsets of the collected money dataset. Confirmed to achieve 97.11\% accuracy on the test set. \\ \hline
+        
+        2.3.5 & 75 & Colour detection algorithm is confirmed to work well on some test images. However, we ran out of time to build the custom test set. \\ \hline
+    \end{tabular}
+\end{table}
+
+\newpage
+\textbf{Hardware}
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|p{0.7cm}|p{1cm}|p{12cm}|}
+    % \begin{tabular}{|c|c|c|}
+        \hline
+        No. & Status (\%) & Comments \\ \hline
+        
+        3.1 & 100 & Button is connected to GPIO on the PI and pipeline start functionality is integrated into main script. \\ \hline
+        
+        3.2 & 100 & Button is connected to GPIO on the PI and mode switch functionality is integrated into the main script. \\ \hline
+        
+        3.3 & 100 & Piezoelectric buzzer has been connected to the PI and integrated into the main script to report errors. \\ \hline
+        
+        3.4 & 100 & Clips have been designed, 3D printed, and tested on a few pairs of glasses. \\ \hline
+        
+        3.5 & 100 & Full casing prototype has been printed and tested using one of the available materials. \\ \hline
+        
+        3.6 & 100 & Raspberry Pi Zero W has a 5V port and has been verified using multi-meter. \\ \hline
+        
+        3.7 & 100 & Very intense workload draw with final prototype was measured with multimeter and found to be below limit. \\ \hline
+        
+        3.8 & 100 & A multimeter was used to measure the current draw and confirmed to be under the limit. \\ \hline
+        
+        3.9 & 75 & Using documentation, we expect to meet this requirement. However, this was never fully tested. \\ \hline
+
+    \end{tabular}
+\end{table}
+
+\textbf{Safety \& Regulatory}
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|p{0.7cm}|p{1cm}|p{12cm}|}
+    % \begin{tabular}{|c|c|c|}
+        \hline
+        No. & Status (\%) & Comments \\ \hline
+        
+        4.1 & 100 & Final casing has been printed and was verified for any exposed wiring. \\ \hline
+        
+        4.2 & 100 & Error detection implemented and tested. \\ \hline
+        
+        4.3 & 100 & Cable connecting battery and Raspberry PI can be used as a holder to prevent loss of device. \\ \hline
+
+    \end{tabular}
+\end{table}
+
+\subsection{Review of Analyses}
+
+An analysis was done relatively early on to see if our initial vision of using Bluetooth to transfer images from the Raspberry PI to the phone for processing was possible. The details of the analysis can be found in section \ref{}. In summary, it was found that Bluetooth lacked the bandwidth necessary to transfer images to the phone in a reasonable amount of time. We would have the option of applying for Apple's MFi prog
+
+
+Verification of bluetooth and MFI 
+
+Verification of algorithms
 
 \section{Design for Safety}
 
@@ -310,12 +450,23 @@ Furthermore, we intend to make the entire platform (software, hardware, accompan
 
 Finally, we chose to print the housing out of PLA, a cornstarch-based bioplastic. This material releases no harmful fumes when used for 3D printing, from either a health or environment standpoint. This material strikes a balance between durability and biodegradability, but it is able to be composted in an industrial environment (i.e. under higher temperatures, with the aid of microbial digestion). The main environmental benefit of using PLA is that no crude oil is used in its production; only corn. It is also one of the cheapest and easiest to use materials for 3D printing, making it an ideal candidate for a cheap, widely-available option for printing our open-source design.
 
+\newpage
 \section{Design Project Management Summary}
+\subsection{Design Project Plan Changes}
+There were no significant changes to our design project plan during the winter 2022 term. This is because we came into this term having mostly completed and validated all the core pieces of our project, except for the glasses casing, and it was just a matter of integrating them all. Luckily, we had no major integration problems that put our schedule at risk. Additionally, as explained in section \ref{schedule}, we stopped using our primary project management software halfway through the term due to an unexpected paywall introduced that removed our ability to view our schedule using Gantt charts.
+
+\subsection{Management Lessons Learned}
+For most of us, this was our first time planning and working on a project that is intended to last longer than a few months. As such, we are bound to make some mistakes in the process, but we also did some things that have worked well.
+
+One of the things we did well was to agree to meet weekly for internal meetings and biweekly with our faculty advisor. This gave us a minimum of one sync point every week where we could update each other on progress and make sure to bring any blockers to attention quickly. We also ensured to take weekly meeting logs so we had a record of what was discussed and worked on each week. See Section \ref{meeting-logs} for an overview of our meeting log setup. Our communication as a team was strong, as we were very transparent and not afraid to challenge each other's ideas in a constructive manner. Any time there was a disagreement on how to progress, we were able to talk it out and converge on an approach that everybody agreed with.
+
+One of the things we did not do well was assigning timelines and due dates on tasks. We took a very free-flowing approach to tasks, where we didn't decide on a deliverable date to aim for, and left it up as a discretion to the person working on it when it could be done by. As a result, there was a lack of accountability and some tasks dragged on for a very long time. Our plan to mitigate this was through the introduction of ClickUp as our project management software. While that worked well initially, eventually we didn't do a great job of keeping up with the ClickUp timelines and keeping them updated. We ended up usually neglecting ClickUp for a few weeks and then updating it once it started to get really out of date. To make matters worse, we reached our free tier capacity to view our project Gantt charts, which discouraged us even more from using ClickUp, and around the midpoint of the winter 2022 term, we abandoned it completely and switched to using our Notion meeting logs as the primary way of keeping track of progress and remaining work items.
 
 \section{Conclusions and Recommendations for Future Work}
 
 \section{Acknowledgements}
-https://www.overleaf.com/project/6245c3ce4f2a564aea8bd3c6
+Thank you to the individuals from Lighthouse SF and UW AccessAbility Services (not named for anonymity) who took the time and effort to speak to our team. Their insights and connection were useful throughout the development process. Thank you as well to our faculty advisor, Professor John Zelek, for meeting with us on a biweekly basis to discuss progress and provide valuable technical consultation. Finally, a thank you to Professor Oscar Nespoli for his useful design knowledge presented in the GENE 403 and 404 course content.
+
 \newpage
 \section{Appendix A - Design Solution Description}
 \subsection{System Level Representation}
@@ -428,6 +579,7 @@ The small database isn't descriptive enough, the medium database has trouble wit
 
 
 \subsubsection{Money Classification}
+\label{money-class}
 
 Money classification is the task of identifying the type of bill being shown in the image. We targeted American bills only for this task since Canadian bills have braille on them to identify the bill type. After some research, we could not find any open-source money classification algorithms already existing. Therefore, we decided to implement our own classification algorithm.
 
@@ -448,14 +600,14 @@ Some example images from the dataset can be seen in Figures \ref{fig:one_dollar_
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.1]{img/cv/money/one_dollar_bill_nice.jpeg}
+\includegraphics[scale=0.09]{img/cv/money/one_dollar_bill_nice.jpeg}
 \caption{Easy example of a one dollar bill.}
 \label{fig:one_dollar_nice}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.1]{img/cv/money/one_dollar_bill_hard.jpeg}
+\includegraphics[scale=0.09]{img/cv/money/one_dollar_bill_hard.jpeg}
 \caption{Difficult example of a one dollar bill.}
 \label{fig:one_dollar_hard}
 \end{figure}
@@ -494,7 +646,7 @@ The Weights \& Biases library was used to perform a hyperparameter sweep in orde
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.8]{img/cv/money/conf_matrix.png}
+\includegraphics[scale=0.75]{img/cv/money/conf_matrix.png}
 \caption{Confusion matrix on the validation set for the best run.}
 \label{fig:conf_matrix}
 \end{figure}
@@ -597,17 +749,128 @@ A next step to bring our design closer to a final product would be to take advan
 \label{apple-mfi}
 Bluetooth Classic is a different version of Bluetooth which supports much higher throughput; BT Classic connections are two-way, continuous data streams up to 2.1Mbps \cite{bluetooth-classic}. iOS supports this version of Bluetooth, although it is restricted to embedded chips with Apple's MFi (Made For iPod) certification \cite{apple-mfi}. Using Bluetooth Classic would provide the data transfer speeds needed to send an image quickly enough to provide a good user experience, although the ability to perform background processing is restricted to BLE devices. Nevertheless, this would enable us to perform OCR on a piece of text and read it back while the user is offline. In our final product, we would apply for an Apple MFi certification in order to unlock the full potential of Bluetooth on iPhone.
 
-\newpage
-\section{Appendix C - Design Project Management Data}
+\subsection{Computer Algorithm Test Sets}
+We had originally planned to collect test datasets to evaluate the performance of each computer vision algorithm (OCR, money classification, colour detection) using test images we found to be realistic use cases. However, we ran out of time to collect the dataset for all algorithms except money classification. This part of the project was relatively low on our priority list since we were more focused on getting the functionality of the device working in the demo. The dataset was collected mostly due to the fact that it was needed in order to get the algorithm working in the first place. We needed a dataset to train on and a dataset to test the model's generalization performance on. All the details regarding the collection of the dataset can be found in section \ref{money-class}. To reiterate the results from that section, the final trained model was able to achieve 97.11\% accuracy on the test dataset, which we found to be satisfactory.
 
+\section{Appendix C - Design Project Management Data}
+\label{appendix-c}
+
+\subsection{Summary of Software and Tools Used}
+We used many tools for configuration management and record keeping. They are all listed below:
+\begin{itemize}
+    \item Discord: Internal meetings and communication.
+    \item Notion: Meeting and research notes. See Section \ref{meeting-logs} for more on our Notion setup.
+    \item ClickUp: Tasks and timelines. See Section \ref{schedule} for more info.
+    \item Overleaf: LaTeX editor to create and store reports.
+    \item Google Drive: Store files, datasets, presentation slides, and revision controlled documents such as the engineering design specification and risk register.
+    \item Github: Source code and software documentation.
+    \item Microsoft Teams: Meetings with faculty advisor.
+\end{itemize}
+
+\subsection{Schedule}
+\label{schedule}
+We used ClickUp \cite{clickup} as our project management software to keep track of work items and the progress. We could view the schedule through ClickUp's Gantt chart views. Unfortunately, we discovered that there is a maximum limit of 100 Gantt chart views before that feature gets locked behind a paywall. We hit our free limit during the winter 2022 term and were no longer able to view the Gantt charts. As a result, we stopped using ClickUp after that point and primarily just relied on our meeting logs to keep track of the remaining action items. Luckily, since we were near the end of the project anyways, it wasn't too big a loss. Below are the most recent ClickUp Gantt charts, which were taken at the end of the fall 2021 term, but note that these are out of date and only reflect the state of the project as of December 2021. We had one Gantt chart for the high-level timeline, and then one for each software subsystem (server, iOS, artificial intelligence), as well as hardware.
+\begin{center}
+    \includegraphics[width={1.0\linewidth}]{img/schedule/general-gantt.png}
+    \includegraphics[width={1.0\linewidth}]{img/schedule/software-gantt-1.png}
+    \includegraphics[width={1.0\linewidth}]{img/schedule/software-gantt-2.png}
+    \includegraphics[width={1.0\linewidth}]{img/schedule/software-gantt-3.png}
+    \includegraphics[width={1.0\linewidth}]{img/schedule/hardware-gantt.png}
+\end{center}
+
+
+\subsection{Budget}
+
+\subsection{Organizational Chart}
+\begin{table}[ht]
+    \centering
+    % \begin{tabular}{|c|c|c|c|}
+    \begin{tabular}{|p{2.8cm}|p{5.5cm}|p{6.5cm}|}
+        \hline
+        Name & Position & Responsibilities \\ \hline
+        Waleed Ahmed & Project Manager & Driving discussions, scheduling, brainstorming, meeting logs, general support on prototyping and integration
+        \\ \hline
+        
+        Martin Ethier & Artificial Intelligence Lead & 
+        Research, testing, and integration of artificial intelligence software
+        \\ \hline
+        
+        Zain Denno & Hardware and Embedded Lead & 
+        Research, testing, and integration of the hardware platform \\ \hline
+        
+        Connor Barker & iOS and Mechanical Lead & 
+        Research, testing, and integration of the mobile iOS application. Design of the glasses casing. \\ \hline
+        
+        John Zelek & Faculty Advisor (SYDE) & Problem space and technical consultation \\ \hline
+        
+        Oscar Nespoli & GENE Course Instructor & Engineering design guidance through GENE 403 and 404 course content \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Risk Register}
+The risk register is unchanged from the fall 2021 report. No new risks were added and no pre-existing risks ended up happening. The risks that were realized are highlighted in red, and the ones that were not realized in green.
+\begin{center}
+    \includegraphics[page=1,width={1.0\linewidth}]{pdf/risk_register.pdf}
+    \newpage
+    \includegraphics[page=2,width={1.0\linewidth}]{pdf/risk_register.pdf}
+\end{center}
+
+\newpage
+\subsection{Meeting Logs}
+\label{meeting-logs}
+Throughout the project, we used a shared Notion drive to hold all meeting logs and research notes.
+Below are some screenshots that showcase the organization of the drive and the format we followed for keeping track of meeting logs.
+
+\begin{center}
+    \includegraphics[width={0.3\linewidth}]{img/notion/notion1.png}
+    \includegraphics[width={0.35\linewidth}]{img/notion/notion2.png}
+    \includegraphics[width={0.3\linewidth}]{img/notion/notion3.png}
+    \includegraphics[width={0.3\linewidth}]{img/notion/notion4.png}
+    \includegraphics[width={0.3\linewidth}]{img/notion/notion5.png}
+\end{center}
+
+\newpage
+For the internal meeting notes, the format we converged on naturally was:
+\begin{itemize}
+    \item Updates
+        \begin{itemize}
+            \item Waleed
+            \item Connor
+            \item Zain
+            \item Martin
+        \end{itemize}
+    \item Discussion Topics
+    \item Action Items
+        \begin{itemize}
+            \item Waleed
+            \item Connor
+            \item Zain
+            \item Martin
+        \end{itemize}
+\end{itemize}
+
+The idea is for each member to give updates on what they did the previous week, and then we go into any discussion items for that week, and finally end off with each member listing off their current action items. The expectation is that next week's updates will be based on the previous week's action items. An example of our notes from one of our meetings is shown below:
+\begin{center}
+    \includegraphics[width={0.5\linewidth}]{img/notion/Aug3_Updates.png} \\
+    \includegraphics[width={0.45\linewidth}]{img/notion/Aug3_Discussion.png}
+    \includegraphics[width={0.45\linewidth}]{img/notion/Aug3_Action.png}
+\end{center}
 
 \section{Appendix D - Knowledge Application}
 
-\section{Exhibits}
-\subsection{Promotional Video}
-\subsection{Symposium Poster}
-\subsection{GitHub}
+\begin{landscape}
+    \section{Exhibits}
+    \subsection{Symposium Poster}
+    \begin{center}
+        \includegraphics[width={1.0\linewidth}]{img/symposium_poster.png}
+    \end{center}
+\end{landscape}
 
+\subsection{Promotional Video}
+The promotional video for our project can be found \href{https://www.youtube.com/watch?v=aw0gHmt1xBc}{\color{blue}{here}}.
+
+\subsection{GitHub}
+Our GitHub organization, which has all of the source code for the project, can be found \href{https://github.com/vizia-fydp}{\color{blue}{here}}.
 
 \newpage
 % REFERENCES
@@ -772,6 +1035,12 @@ Codebrainz, “Color-names/colors.csv at master · codebrainz/color-names,” Gi
 
 \bibitem{k-means-opencv}
 “K-means clustering in opencv,” OpenCV. [Online]. Available: https://docs.opencv.org/4.x/d1/d5c/tutorial\_py\_kmeans\_opencv.html. [Accessed: 05-Apr-2022]. 
+
+\bibitem{aws-uptime}
+“AWS Service Level Agreement - What You Need To Know,” Logicata, 07-Dec-2021. [Online]. Available: https://www.logicata.com/blog/aws-service-level-agreement/. [Accessed: 08-Apr-2022].
+
+\bibitem{voiceover-langs}
+“Languages supported by voiceover,” Apple Support, 04-May-2019. [Online]. Available: https://support.apple.com/en-us/HT206175. [Accessed: 08-Apr-2022]. 
 
 \end{thebibliography}
 
