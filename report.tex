@@ -438,6 +438,19 @@ the collection of the dataset can be found in \ref{money-class}. To summarize th
 achieve 97.11\% accuracy on the test dataset, which we found to be satisfactory.
 
 \section{Design for Safety}
+There are several facets of safety we are considering when designing and implementing our solution. For one, as with any electronic device, it is essential that our design does not present any electrical harm to the user. Since the design is an assistive device for the visually impaired, we also took action to try to avoid putting the user in harm's way.
+
+\subsection{Safety of Electrical Components}
+There are several considerations to be made to ensure that no potentially harmful electrical components are exposed. The key area of concern is the micro USB power port that will be used to connect to the battery. We used packaging to cover as much of the port as possible. Additionally, the current draw of the Raspberry Pi Zero W was measured thoroughly using a USB digital current meter to ensure safe levels.
+
+\subsection{Safety in Use}
+As part of our implementation, error detection and feedback were integrated such that the user can always stay informed on the status of the device. We employ the following mechanisms to achieve our safety goal:
+\begin{itemize}
+    \item \textbf{Model Confidence}: OCR and money classification models are statistical in nature, so they provide confidence values for their predictions. This metric will be communicated to the user to keep them more aware of the performance of the system. Although note that deep learning models have a tendency to be overconfident.
+    \item \textbf{Piezoelectric Buzzer}: To be used to play a tone to the user informing them of errors in the system, e.g. connection to phone lost, connection to WiFi lost, etc.
+    \item \textbf{Glasses Chain}: The power cable that connects the batteries to the remainder of the device was chosen to be long enough such that it can be used as a glasses chain. This allows the device to not fall to the ground and be damaged if it were to fall off the user's face. It would also allow a user to take off the device, and keep it conveniently close by, rather than placing it somewhere and risk forgetting it or not finding it in the future.
+\end{itemize}
+Note: for demonstration purposes, model confidence and system errors are not communicated, though the features are implemented. If integrated with the system, these features will allow the device to not put the user in a position of relying on the device if it's unable to perform as best as it can.
 
 \section{Design for Regulatory Requirements}
 Ontario (and the Canadian government), like many legal jurisdictions around the world, has regulations regarding the manufacture and sale of assistive devices. However, these regulations primarily impose restrictions upon medical technology. Our solution is non-intrusive and does not attempt or promise to perform a medical function of any kind. It, therefore, does not meet the requirements to be categorized as even a Class I medical device.
@@ -512,6 +525,10 @@ In an effort to make the design as reproducible as possible, the electrical desi
 \end{center}
 
 The Adafruit PowerBoost 500 Board was used to connect the battery to the Raspberry Pi. A SPDT slide switch was connected to it to allow for a second point of power disconnection for the user. The power output pins of the PowerBoost were wired directly to a disassembled microUSB cable. A schematic describing these connections and images of the disassembled cable are shown below.
+
+\begin{center}
+    \includegraphics[scale=1.0]{img/schematics/vizia-powerboost.png}
+\end{center}
 
 \begin{center}
     \includegraphics[scale=0.05]{img/schematics/vizia-power-usb-conn.png}
