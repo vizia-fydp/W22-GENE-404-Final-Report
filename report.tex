@@ -425,12 +425,17 @@ See section \ref{eds-1.0} for the latest version of our engineering design speci
 
 \subsection{Review of Analyses}
 
-An analysis was done relatively early on to see if our initial vision of using Bluetooth to transfer images from the Raspberry PI to the phone for processing was possible. The details of the analysis can be found in section \ref{}. In summary, it was found that Bluetooth lacked the bandwidth necessary to transfer images to the phone in a reasonable amount of time. We would have the option of applying for Apple's MFi prog
+An analysis was done relatively early on to see if our initial vision of using Bluetooth to transfer images from the Raspberry PI to the phone for processing was possible. The details of the analysis can be found in section \ref{bluetooth}. In summary, it was found that Bluetooth lacked the bandwidth necessary to transfer images to the phone in a reasonable amount of time. We would have the option of applying for Apple's MFi program, which would allow us to utilize Bluetooth Classic, which has a much higher bandwidth that would allow us to transfer images directly to the phone from the Raspberry PI, allowing us to build our initial vision for the product. However, getting certified for an MFi chip is well beyond the scope and timeframe of an FYDP, and it something we would try to look into if we were to pursue this project as a startup.
 
-
-Verification of bluetooth and MFI 
-
-Verification of algorithms
+Furthermore, we had originally planned to collect test datasets to evaluate the performance of each computer vision
+algorithm (OCR, money classification, colour detection) using test images we found to be realistic use
+cases. However, we ran out of time to collect the dataset for all algorithms except money classification.
+This part of the project was relatively low on our priority list since we were more focused on getting
+the functionality of the device working in the demo. The dataset was collected mostly due to the fact
+that it was needed in order to get the algorithm working in the first place. We needed a dataset to
+train on and a dataset to test the model’s generalization performance on. All the details regarding
+the collection of the dataset can be found in \ref{money-class}. To summarize the results of that section, the final trained model was able to
+achieve 97.11\% accuracy on the test dataset, which we found to be satisfactory.
 
 \section{Design for Safety}
 
@@ -496,6 +501,9 @@ A 3D printed clip-on design was used to allow flexibility since it can be attach
 The housing for the glasses was designed from scratch using CAD software. The main goal of the housing was to be lightweight and compact, which was mostly a matter of measuring, test fitting, and repeating until the case was as tightly fit as possible. Most of the difficulty in designing the housing came from the challenge of designing a case that could be 3D printed using the minimum amount of support structures possible, as well as being able to be easily assembled and disassembled (ideally without glue). The housing also needed to function agnostic of the specific pair of glasses being used, meaning the mounting solution couldn't be integrated.
 
 The ultimate solution for the glasses was to print the case in three pieces, which attached to one another with integrated clips. Each part of the housing is printed facing downwards, i.e. with the flat side against the build plate. This allows for minimal use of support structures, resulting in a much faster print time, lower material usage, and high durability. Via the use of internal standoffs, the electronics are held in place inside the case without glue (while also being aligned with openings for cables/buttons/etc). Both the battery pack and electronics housing use a wrap-around clip system which holds itself together, meaning no glue is needed to assemble them. These clip harnesses attach to the glasses arms using 2 small clips; in order to size the system to their glasses, a user only needs to measure one arm of their glasses at two points, and then print all 4 small clips. The material cost of the case is around \$0.30, and the total print time is approximately 2h.
+
+\subsubsection{Electrical Design}
+
 
 \subsection{Server}
 \label{server}
@@ -735,6 +743,13 @@ Finally, the app has full-featured VoiceOver support, using Apple's latest acces
 
 \newpage
 \section{Appendix B - Verification and Validation Data}
+\subsection{Deploying the Server}
+While testing, we ran the server locally on our computers and used ngrok \cite{ngrok} to expose it to other devices. This works great but gets annoying since ngrok generates a new URL every time and we have to update the URL in the iOS app and glasses firmware every time so they can communicate with the server. We wanted to try setting up the server in a serverless production environment such as Heroku \cite{heroku} or Amazon Web Services.
+
+We experimented with both Heroku and AWS Lambda \cite{aws-lambda} but ran into various deployment issues at first. Initially, the dependencies for the server were too big to be deployed on either service, coming out to around 1GB, while Heroku's limit was 500 MB and AWS Lambda's was 250 MB. We looked at our dependencies to see if we could trim it down somehow and noticed the biggest culprit was PyTorch \cite{pytorch}. PyTorch comes with a lot of tools, but we only needed a small fraction of it for performing inference on our money classification model. We switched the inference runtime to Open Neural Network Exchange (ONNX) \cite{onnx}, as it is much more lightweight. This brought us below the capacity limits for Heroku and Lambda, but then we ran into deployment issues on both. The server would get brought up but would throw a 502 error immediately. 
+
+After a bit more researching, we realized that the web framework we were using, \texttt{flask-socketio}, does not play well with Heroku and AWS Lambda, as other people had similar deployment troubles with it. We came to the conclusion that our only option would be to rent an actual server using something like Amazon EC2 \cite{aws-ec2} and deploy the server on that. However, EC2 bills per usage, so we didn't want to deploy the server on that and keep it running after our project ends. We decided to stick with ngrok for our testing and demo, and mentioned in our server repository's README that Amazon EC2 is probably the way to go to deploy the server on a more permanent solution.
+
 \subsection{Bluetooth}
 \label{bluetooth}
 We had initially planned to use a Bluetooth Low Energy (BLE) connection to facilitate image transferring between the Raspberry Pi and the user's iOS device. We based this requirement around Apple's CoreBluetooth framework \cite{apple-bluetooth}, and their restrictions on the amount of background processing iOS applications can perform. iOS has extremely aggressive memory and power management systems, which put apps into a suspended state when not in the foreground (i.e. when not open on the user's screen). Apple allows applications to request permission to perform background tasks, with certain limitations. One such permission is the ability to monitor communications from a paired BLE peripheral and act upon incoming data \cite{apple-bluetooth}. Once an incoming BLE packet destined for an application is detected, iOS provides a 15-30 second window for said application to complete any tasks it needs to do to react to this data before putting them back into a suspended state automatically.
@@ -748,9 +763,6 @@ A next step to bring our design closer to a final product would be to take advan
 \subsection{Apple MFi}
 \label{apple-mfi}
 Bluetooth Classic is a different version of Bluetooth which supports much higher throughput; BT Classic connections are two-way, continuous data streams up to 2.1Mbps \cite{bluetooth-classic}. iOS supports this version of Bluetooth, although it is restricted to embedded chips with Apple's MFi (Made For iPod) certification \cite{apple-mfi}. Using Bluetooth Classic would provide the data transfer speeds needed to send an image quickly enough to provide a good user experience, although the ability to perform background processing is restricted to BLE devices. Nevertheless, this would enable us to perform OCR on a piece of text and read it back while the user is offline. In our final product, we would apply for an Apple MFi certification in order to unlock the full potential of Bluetooth on iPhone.
-
-\subsection{Computer Algorithm Test Sets}
-We had originally planned to collect test datasets to evaluate the performance of each computer vision algorithm (OCR, money classification, colour detection) using test images we found to be realistic use cases. However, we ran out of time to collect the dataset for all algorithms except money classification. This part of the project was relatively low on our priority list since we were more focused on getting the functionality of the device working in the demo. The dataset was collected mostly due to the fact that it was needed in order to get the algorithm working in the first place. We needed a dataset to train on and a dataset to test the model's generalization performance on. All the details regarding the collection of the dataset can be found in section \ref{money-class}. To reiterate the results from that section, the final trained model was able to achieve 97.11\% accuracy on the test dataset, which we found to be satisfactory.
 
 \section{Appendix C - Design Project Management Data}
 \label{appendix-c}
@@ -780,6 +792,48 @@ We used ClickUp \cite{clickup} as our project management software to keep track 
 
 
 \subsection{Budget}
+We aimed to keep a budget of \$100 per term for parts and equipment, and \$15,120 per term for labour. The latter is an estimate based on a \$35/hour rate (per student) working 9 hours per week, and 12 weeks per term. Maintaining the budget is essential to meeting our goal of providing an affordable accessibility solution. This results in a total allocated budget of \$45,660 for the entirety of the project. The following table shows that we have remained within our estimated budget:
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|c|r|}
+        \hline
+        
+        \textbf{Item / Resource} & \textbf{Supplier} & \textbf{Cost (CAD)}
+        \\ \hline
+        Raspberry Pi Zero W Camera Pack & Adafruit      & 44.95
+        \\ \hline
+        SanDisk Ultra 32GB micro SDHC   & Amazon        & 12.79
+        \\ \hline
+        UGREEN Mini HDMI Adapter        & Amazon        & 10.99
+        \\ \hline
+        Electop USB Power Meter Tester  & Amazon        & 29.36
+        \\ \hline
+        Micro USB to USB Adapter        & Amazon        & 9.99
+        \\ \hline
+        Adafruit PowerBoost 500 Charger & Amazon        & 26.95
+        \\ \hline
+        SPDT Slide Switch               & Adafruit      & 0.95
+        \\ \hline
+        0.5m JST Extension Cable        & Adafruit      & 1.95
+        \\ \hline
+        3 x AAA Battery Holder          & Adafruit      & 1.95
+        \\ \hline
+        Github Organization Free        & Github        & 0.00
+        \\ \hline
+        ClickUp Workspace               & ClickUP       & 0.00
+        \\ \hline
+        Overleaf Online LaTeX Editor    & Overleaf      & 0.00
+        \\ \hline
+        Labour Costs                    & N/A           & 45,360.00
+        \\ \hline
+        \textbf{Total}                  & \multicolumn{2}{r|}{\textbf{45,499.88}}
+        \\ \hline
+    \end{tabular}
+    \label{Tab:budget}
+\end{table}
+
+\newpage
 
 \subsection{Organizational Chart}
 \begin{table}[ht]
@@ -1041,6 +1095,25 @@ Codebrainz, “Color-names/colors.csv at master · codebrainz/color-names,” Gi
 
 \bibitem{voiceover-langs}
 “Languages supported by voiceover,” Apple Support, 04-May-2019. [Online]. Available: https://support.apple.com/en-us/HT206175. [Accessed: 08-Apr-2022]. 
+
+\bibitem{ngrok}
+“Public urls for exposing your local web server,” ngrok. [Online]. Available: https://ngrok.com/. [Accessed: 09-Apr-2022]. 
+
+\bibitem{heroku}
+“Build apps for free on Heroku,” Heroku. [Online]. Available: https://www.heroku.com/free. [Accessed: 09-Apr-2022].
+
+\bibitem{aws-lambda}
+“Lambda,” Amazon, 2022. [Online]. Available: https://aws.amazon.com/lambda/. [Accessed: 09-Apr-2022]. 
+
+\bibitem{aws-ec2}
+“EC2,” Amazon, 1987. [Online]. Available: https://aws.amazon.com/ec2/. [Accessed: 09-Apr-2022].
+
+\bibitem{pytorch}
+“Pytorch,” PyTorch. [Online]. Available: https://pytorch.org/. [Accessed: 09-Apr-2022]. 
+
+\bibitem{onnx}
+“Open Neural Network Exchange,” ONNX. [Online]. Available: https://onnx.ai/. [Accessed: 09-Apr-2022]. 
+
 
 \end{thebibliography}
 
