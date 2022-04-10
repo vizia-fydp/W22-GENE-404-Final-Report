@@ -989,6 +989,19 @@ The idea is for each member to give updates on what they did the previous week, 
 \end{center}
 
 \section{Appendix D - Knowledge Application}
+
+\subsection{Money Classification Metrics}
+To evaluate our trained models on the money classification dataset, we used two metrics. The primary metric we used is classification accuracy, which can be simply defined as the number of correctly classified examples divided by the total number of examples.
+
+Another evaluation technique we used to compare model performance is the confusion matrix. This confusion matrix is essentially a way to quickly visualize the true positive (TP), true negative (TN), false positive (FP), and false negative (FN) counts for each class. Figure \ref{fig:conf_matrix_diagram} shows how we can retrieve the TP, TN, FP, and FN counts from a confusion matrix for each individual class. This visualization can quickly show us which classes the model is performing well on, which classes it is struggling with, and which classes it tends to mix up.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{img/conf_matrix_diagram.png}
+\caption{Diagram showing how to find the TP, TN, FP, and FN counts for each class using a confusion matrix. \cite{conf-mat-diagram}}
+\label{fig:conf_matrix_diagram}
+\end{figure}
+
 \subsection{K-Means Clustering}
 K-means clustering is a popular unsupervised machine learning algorithm that is used to partition data into k clusters. Each cluster is defined by its mean value, and all the items in that cluster are closest to that mean. A visual representation of the algorithm can be seen below:
 \begin{figure}[H]
@@ -1016,6 +1029,7 @@ The promotional video for our project can be found \href{https://www.youtube.com
 Our GitHub organization, which has all of the source code for the project, can be found \href{https://github.com/vizia-fydp}{\color{blue}{here}}.
 
 % REFERENCES
+\newpage
 \begin{thebibliography}{9}
 \bibitem{orbis-global-blind-data}
 “Number of blind people set to triple by 2050” Orbis, 09-Feb-2021. [Online]. Available: https://can.orbis.org/en/news/2017/number-of-blind-people-set-to-triple-by-2050-1. [Accessed: 02-Aug-2021]. 
@@ -1204,6 +1218,9 @@ Codebrainz, “Color-names/colors.csv at master · codebrainz/color-names,” Gi
 
 \bibitem{apple-modals}
 A. Inc., Modality - app architecture - IOS - human interface guidelines - apple developer. [Online]. Available: https://developer.apple.com/design/human-interface-guidelines/ios/app-architecture/modality/. [Accessed: 10-Apr-2022]. 
+
+\bibitem{conf-mat-diagram}
+Krüger, Frank. (2016). Activity, Context, and Plan Recognition with Computational Causal Behaviour Models.
 
 \end{thebibliography}
 
