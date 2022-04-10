@@ -702,11 +702,11 @@ The final version of the iOS app uses similar design language to the initial pro
 \label{fig:mono_swatch}
 \end{figure}
 
-We also updated the playback screen to function as a modal, rather than a standalone page. In terms of design language, the transience of the playback page is much better suited to a modal format, which can be easily dismissed and provides more minimal functionality. The home screen of the app is functionally unchanged; the same design principles of large text/buttons, high contrast, and minimalism are applicable to the new application as well as the old one, so the design was carried over and polished.
+We also updated the playback screen to function as a modal \cite{apple-modals}, rather than a standalone page. In terms of design language, the transience of the playback page is much better suited to a modal format, which can be easily dismissed and provides more minimal functionality. The home screen of the app is functionally unchanged; the same design principles of large text/buttons, high contrast, and minimalism are applicable to the new application as well as the old one, so the design was carried over and polished.
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.2]{img/app/landing.png}
+\includegraphics[scale=0.2]{img/app/landing1.png}
 \includegraphics[scale=0.2]{img/app/playback.png}
 \caption{App landing page/playback modal}
 \label{fig:app_screenshots}
@@ -714,6 +714,30 @@ We also updated the playback screen to function as a modal, rather than a standa
 \newpage
 
 Finally, the app has full-featured VoiceOver support, using Apple's latest accessibility features. This means that although the main screen has a carousel of buttons, a user interacting with it using VoiceOver will 'see' it as a series of stacked buttons which they can iterate through as though it was a list. Some features targeted towards sighted users are ignored by VoiceOver, such as the arrow buttons used to navigate between buttons. The 'positioning' of some elements is also changed. In mobile design for sighted users, high priority elements are placed near the user's thumb, and low-priority ones are placed at the top of the screen so that they are out of the way. For VoiceOver users, this means that the least important elements will be read first, which is obviously undesirable. By leveraging some of the new iOS VoiceOver features, we were able to reorganize the order in which button labels etc are read out, such that the most important elements appear first.
+
+\subsection{Features}
+The app exposes 4 modes of processing, shown in Figure \ref{fig:app_features}.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.1]{img/app/landing1.png}
+\includegraphics[scale=0.1]{img/app/landing2.png}
+\includegraphics[scale=0.1]{img/app/landing3.png}
+\includegraphics[scale=0.1]{img/app/landing4.png}
+\caption{App features}
+\label{fig:app_features}
+\end{figure}
+
+If any of these processing modes is initiated through the app, a camera capture UI shows up and allows the user to take a picture, retake, or cancel the action, as seen in Figure \ref{fig:app_capture}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.125]{img/app/capture1.png}
+\includegraphics[scale=0.125]{img/app/capture2.png}
+\caption{App image capture}
+\label{fig:app_capture}
+\end{figure}
+
+Once the processing is complete, regardless of if the image was sent from the iOS device or the glasses, the playback modal, as seen in Figure \ref{fig:app_screenshots}, appears into view. The audio is played and the controls are available for the user to pause, restart, or speed up/slow down the audio. It is also possible for the audio playback to be done without the playback modal, and this is what happens when the user presses the "switch mode" button on the glasses, audio is played from the app to inform the user of the mode change, but not playback modal appears.
 
 \newpage
 \begin{landscape}
@@ -773,13 +797,6 @@ Finally, the app has full-featured VoiceOver support, using Apple's latest acces
 
 \newpage
 \section{Appendix B - Verification and Validation Data}
-\subsection{Deploying the Server}
-While testing, we ran the server locally on our computers and used ngrok \cite{ngrok} to expose it to other devices. This works great but gets annoying since ngrok generates a new URL every time and we have to update the URL in the iOS app and glasses firmware every time so they can communicate with the server. We wanted to try setting up the server in a serverless production environment such as Heroku \cite{heroku} or Amazon Web Services.
-
-We experimented with both Heroku and AWS Lambda \cite{aws-lambda} but ran into various deployment issues at first. Initially, the dependencies for the server were too big to be deployed on either service, coming out to around 1GB, while Heroku's limit was 500 MB and AWS Lambda's was 250 MB. We looked at our dependencies to see if we could trim it down somehow and noticed the biggest culprit was PyTorch \cite{pytorch}. PyTorch comes with a lot of tools, but we only needed a small fraction of it for performing inference on our money classification model. We switched the inference runtime to Open Neural Network Exchange (ONNX) \cite{onnx}, as it is much more lightweight. This brought us below the capacity limits for Heroku and Lambda, but then we ran into deployment issues on both. The server would get brought up but would throw a 502 error immediately. 
-
-After a bit more researching, we realized that the web framework we were using, \texttt{flask-socketio}, does not play well with Heroku and AWS Lambda, as other people had similar deployment troubles with it. We came to the conclusion that our only option would be to rent an actual server using something like Amazon EC2 \cite{aws-ec2} and deploy the server on that. However, EC2 bills per usage, so we didn't want to deploy the server on that and keep it running after our project ends. We decided to stick with ngrok for our testing and demo, and mentioned in our server repository's README that Amazon EC2 is probably the way to go to deploy the server on a more permanent solution.
-
 \subsection{Bluetooth}
 \label{bluetooth}
 We had initially planned to use a Bluetooth Low Energy (BLE) connection to facilitate image transferring between the Raspberry Pi and the user's iOS device. We based this requirement around Apple's CoreBluetooth framework \cite{apple-bluetooth}, and their restrictions on the amount of background processing iOS applications can perform. iOS has extremely aggressive memory and power management systems, which put apps into a suspended state when not in the foreground (i.e. when not open on the user's screen). Apple allows applications to request permission to perform background tasks, with certain limitations. One such permission is the ability to monitor communications from a paired BLE peripheral and act upon incoming data \cite{apple-bluetooth}. Once an incoming BLE packet destined for an application is detected, iOS provides a 15-30 second window for said application to complete any tasks it needs to do to react to this data before putting them back into a suspended state automatically.
@@ -793,6 +810,39 @@ A next step to bring our design closer to a final product would be to take advan
 \subsection{Apple MFi}
 \label{apple-mfi}
 Bluetooth Classic is a different version of Bluetooth which supports much higher throughput; BT Classic connections are two-way, continuous data streams up to 2.1Mbps \cite{bluetooth-classic}. iOS supports this version of Bluetooth, although it is restricted to embedded chips with Apple's MFi (Made For iPod) certification \cite{apple-mfi}. Using Bluetooth Classic would provide the data transfer speeds needed to send an image quickly enough to provide a good user experience, although the ability to perform background processing is restricted to BLE devices. Nevertheless, this would enable us to perform OCR on a piece of text and read it back while the user is offline. In our final product, we would apply for an Apple MFi certification in order to unlock the full potential of Bluetooth on iPhone.
+
+\subsection{iOS Test App}
+Before the UI/UX of the iOS app was finalized, a small test app was developed to be used as a sandbox to try out some of the functional features that would eventually go into the final app. Features that were developed and validated on this test application include on-device image processing, image capture, socket communication with a server, and speech synthesis. See Figure \ref{fig:test_app_screenshots} for screenshots of what the application looked like.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.1]{img/test_app/testapp_home.png}
+\includegraphics[scale=0.1]{img/test_app/testapp_library.png}
+\includegraphics[scale=0.1]{img/test_app/testapp_photo.jpeg}
+\includegraphics[scale=0.1]{img/test_app/testapp_bookcover.jpeg}
+\caption{Left to right: home screen, pick photo from library, take photo with camera, show captured image on home screen}
+\label{fig:test_app_screenshots}
+\end{figure}
+
+\subsection{Raspberry Pi Prototype}
+The Raspberry Pi Zero W that was used on the glasses casing was unavailable a majority of the time due to being used for design iterations on the glasses casing. A representative prototype of the electrical design was made with a Raspberry Pi 3 and a breadboard, which enabled testing and development of the firmware. Thanks to this prototype, once the final casing and electrical design were ready, the firmware was simply plug and play, and no further development was needed. See Figure \ref{fig:rpi_prototype} for a picture of the prototype.
+
+\begin{figure}
+\centering
+\includegraphics[angle=-90, scale=0.1]{img/rpi_prototype.jpg}
+\caption{Raspberry Pi prototype}
+\label{fig:rpi_prototype}
+\end{figure}
+
+\newpage
+\subsection{Deploying the Server}
+While testing, we ran the server locally on our computers and used ngrok \cite{ngrok} to expose it to other devices. This works great but gets annoying since ngrok generates a new URL every time and we have to update the URL in the iOS app and glasses firmware every time so they can communicate with the server. We wanted to try setting up the server in a serverless production environment such as Heroku \cite{heroku} or Amazon Web Services.
+
+We experimented with both Heroku and AWS Lambda \cite{aws-lambda} but ran into various deployment issues at first. Initially, the dependencies for the server were too big to be deployed on either service, coming out to around 1GB, while Heroku's limit was 500 MB and AWS Lambda's was 250 MB. We looked at our dependencies to see if we could trim it down somehow and noticed the biggest culprit was PyTorch \cite{pytorch}. PyTorch comes with a lot of tools, but we only needed a small fraction of it for performing inference on our money classification model. We switched the inference runtime to Open Neural Network Exchange (ONNX) \cite{onnx}, as it is much more lightweight. This brought us below the capacity limits for Heroku and Lambda, but then we ran into deployment issues on both. The server would get brought up but would throw a 502 error immediately. 
+
+After a bit more researching, we realized that the web framework we were using, \texttt{flask-socketio}, does not play well with Heroku and AWS Lambda, as other people had similar deployment troubles with it. We came to the conclusion that our only option would be to rent an actual server using something like Amazon EC2 \cite{aws-ec2} and deploy the server on that. However, EC2 bills per usage, so we didn't want to deploy the server on that and keep it running after our project ends. We decided to stick with ngrok for our testing and demo, and mentioned in our server repository's README that Amazon EC2 is probably the way to go to deploy the server on a more permanent solution.
+
+
 
 \section{Appendix C - Design Project Management Data}
 \label{appendix-c}
@@ -862,8 +912,6 @@ We aimed to keep a budget of \$100 per term for parts and equipment, and \$15,12
     \end{tabular}
     \label{Tab:budget}
 \end{table}
-
-\newpage
 
 \subsection{Organizational Chart}
 \begin{table}[ht]
@@ -941,12 +989,23 @@ The idea is for each member to give updates on what they did the previous week, 
 \end{center}
 
 \section{Appendix D - Knowledge Application}
+\subsection{K-Means Clustering}
+K-means clustering is a popular unsupervised machine learning algorithm that is used to partition data into k clusters. Each cluster is defined by its mean value, and all the items in that cluster are closest to that mean. A visual representation of the algorithm can be seen below:
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.45]{img/k_means_visualization.png}
+    % \caption{}
+    \label{fig:k_means_visualization}
+\end{figure}
 
+The algorithm is iterative, starting with randomly initialized means, and then updating the means based on the spread of the data. We used this algorithm to implement colour detection, where k-means is used to find the most dominant k colours in the image. We did not implement the algorithm ourselves, rather used an existing implementation that is well optimized and validated from OpenCV \cite{k-means-opencv}.
+
+\newpage
 \begin{landscape}
     \section{Exhibits}
     \subsection{Symposium Poster}
     \begin{center}
-        \includegraphics[width={1.0\linewidth}]{img/symposium_poster.png}
+        \includegraphics[width={0.95\linewidth}]{img/symposium_poster.png}
     \end{center}
 \end{landscape}
 
@@ -956,7 +1015,6 @@ The promotional video for our project can be found \href{https://www.youtube.com
 \subsection{GitHub}
 Our GitHub organization, which has all of the source code for the project, can be found \href{https://github.com/vizia-fydp}{\color{blue}{here}}.
 
-\newpage
 % REFERENCES
 \begin{thebibliography}{9}
 \bibitem{orbis-global-blind-data}
@@ -1144,6 +1202,8 @@ Codebrainz, “Color-names/colors.csv at master · codebrainz/color-names,” Gi
 \bibitem{onnx}
 “Open Neural Network Exchange,” ONNX. [Online]. Available: https://onnx.ai/. [Accessed: 09-Apr-2022]. 
 
+\bibitem{apple-modals}
+A. Inc., Modality - app architecture - IOS - human interface guidelines - apple developer. [Online]. Available: https://developer.apple.com/design/human-interface-guidelines/ios/app-architecture/modality/. [Accessed: 10-Apr-2022]. 
 
 \end{thebibliography}
 
